@@ -1,42 +1,189 @@
-#root {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
+/* --- Google Font Import (Optional, but nice for 'bold' feel) --- */
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap');
+
+/* --- CSS Variables --- */
+:root {
+  --bg-color: #f4f7f6; /* Light grey background */
+  --text-color: #333333; /* Dark grey text */
+  --header-bg: #1a1a2e; /* Dark blueish header */
+  --header-text: #ffffff;
+  --card-bg: #ffffff; /* White cards */
+  --card-border: #e0e0e0;
+  --placeholder-bg: #e9ecef;
+  --placeholder-text: #adb5bd;
+  --accent-color: #16213e; /* Dark blue accent */
+  --shadow-color: rgba(0, 0, 0, 0.08); /* Softer shadow */
+
+  --font-primary: 'Montserrat', sans-serif; /* Use imported font */
+}
+
+/* --- Global Styles --- */
+body {
+  margin: 0;
+  font-family: var(--font-primary);
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  line-height: 1.6;
+}
+
+/* --- App Structure --- */
+.App {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.App-header {
+  background-color: var(--header-bg);
+  color: var(--header-text);
+  padding: 25px 0; /* Increased padding */
   text-align: center;
+  box-shadow: 0 3px 6px var(--shadow-color);
+  z-index: 10; /* Ensure header stays above potential shadows */
 }
 
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
-}
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.react:hover {
-  filter: drop-shadow(0 0 2em #61dafbaa);
+.App-header h1 {
+  margin: 0;
+  font-size: 2.8rem; /* Bolder heading */
+  font-weight: 700;
+  letter-spacing: 1px; /* Add some letter spacing */
 }
 
-@keyframes logo-spin {
-  from {
-    transform: rotate(0deg);
+/* Container for main content - limits width and centers */
+.container {
+  width: 90%; /* Use percentage for flexibility */
+  max-width: 1300px; /* Max width on large screens */
+  margin: 30px auto; /* Top/bottom margin, auto left/right for centering */
+  padding: 0 15px; /* Padding inside the container */
+  box-sizing: border-box;
+  flex-grow: 1; /* Allows container to fill space if footer is added */
+}
+
+.App-main h2 {
+  text-align: center;
+  font-size: 2.2rem;
+  font-weight: 700;
+  color: var(--accent-color);
+  margin-bottom: 40px; /* Increased spacing */
+}
+
+/* --- Catalog Grid --- */
+.catalog-list {
+  display: grid;
+  /* Responsive grid: fills space, minimum item width 240px */
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 35px; /* Increased gap */
+}
+
+/* --- Catalog Item Card --- */
+.catalog-item {
+  background-color: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: 10px; /* Slightly more rounded */
+  overflow: hidden;
+  box-shadow: 0 5px 15px var(--shadow-color);
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+  display: flex;
+  flex-direction: column;
+  cursor: pointer; /* Indicate interactivity */
+}
+
+.catalog-item:hover {
+  transform: translateY(-8px); /* Enhanced lift effect */
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.12); /* Stronger shadow on hover */
+}
+
+.item-image-placeholder {
+  width: 100%;
+  /* Maintain aspect ratio (e.g., 4:3). Adjust padding-top % as needed */
+  padding-top: 110%;
+  position: relative;
+  background-color: var(--placeholder-bg);
+  color: var(--placeholder-text);
+  font-weight: bold;
+  font-size: 0.9rem;
+  border-bottom: 1px solid var(--card-border); /* Separator */
+}
+
+.item-image-placeholder::before {
+  content: 'Image'; /* Simpler text */
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.item-details {
+  padding: 20px; /* Increased padding */
+  text-align: center;
+  flex-grow: 1; /* Allow details to fill space if needed */
+}
+
+.item-details h3 {
+  margin-top: 0;
+  margin-bottom: 10px;
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: var(--accent-color);
+}
+
+.item-details p {
+  margin: 0;
+  color: #555;
+  font-weight: 700; /* Bolder price */
+  font-size: 1.1rem;
+}
+
+/* --- Loading / Error States --- */
+.App-main p { /* Style loading/error messages */
+  font-size: 1.2em;
+  text-align: center;
+  padding: 40px 20px;
+  color: #666;
+}
+
+/* --- Media Queries for Fine-tuning Responsiveness --- */
+@media (max-width: 768px) {
+  .App-header h1 {
+    font-size: 2.2rem;
   }
-  to {
-    transform: rotate(360deg);
+  .App-main h2 {
+    font-size: 1.8rem;
+  }
+  .container {
+    width: 95%;
+    margin-top: 20px;
+    margin-bottom: 20px;
+  }
+  .catalog-list {
+    gap: 25px;
+     /* Adjust minmax if needed for tablets */
+     grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  }
+  .item-details {
+    padding: 15px;
   }
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  a:nth-of-type(2) .logo {
-    animation: logo-spin infinite 20s linear;
+@media (max-width: 480px) {
+  .App-header h1 {
+    font-size: 1.8rem;
   }
-}
-
-.card {
-  padding: 2em;
-}
-
-.read-the-docs {
-  color: #888;
+  .App-main h2 {
+    font-size: 1.5rem;
+  }
+   .container {
+    padding: 0 10px; /* Reduce padding on very small screens */
+  }
+  .catalog-list {
+     /* Ensure items take full width on smallest screens */
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+  .item-details h3 {
+    font-size: 1.1rem;
+  }
+   .item-details p {
+    font-size: 1rem;
+  }
 }
