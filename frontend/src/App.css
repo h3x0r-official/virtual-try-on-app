@@ -16,174 +16,198 @@
 
   --font-primary: 'Montserrat', sans-serif; /* Use imported font */
 }
+/* ... existing styles ... */
 
-/* --- Global Styles --- */
+/* Basic Reset & Body */
 body {
   margin: 0;
-  font-family: var(--font-primary);
-  background-color: var(--bg-color);
+  font-family: var(--font-primary), -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background-color: var(--bg-color); /* Use variable for body background */
   color: var(--text-color);
-  line-height: 1.6;
+  height: 100%; /* Ensure body takes full height */
 }
 
-/* --- App Structure --- */
 .App {
+  /* text-align: center; */ /* Remove center alignment if header/content handle their own */
+  min-height: 100%; /* Ensure App fills the viewport height */
   display: flex;
-  flex-direction: column;
-  min-height: 100vh;
+  flex-direction: column; /* Stack header and main content vertically */
 }
 
 .App-header {
-  background-color: var(--header-bg);
+  background-color: var(--header-bg); /* Use variable */
+  padding: 15px 30px; /* Adjust padding */
   color: var(--header-text);
-  padding: 25px 0; /* Increased padding */
-  text-align: center;
-  box-shadow: 0 3px 6px var(--shadow-color);
-  z-index: 10; /* Ensure header stays above potential shadows */
+  /* margin-bottom: 30px; */ /* Remove bottom margin if flex handles spacing */
+  text-align: left; /* Align header text left */
+  flex-shrink: 0; /* Prevent header from shrinking */
 }
 
 .App-header h1 {
   margin: 0;
-  font-size: 2.8rem; /* Bolder heading */
-  font-weight: 700;
-  letter-spacing: 1px; /* Add some letter spacing */
+  font-size: 1.8rem; /* Adjust size */
 }
 
-/* Container for main content - limits width and centers */
-.container {
-  width: 90%; /* Use percentage for flexibility */
-  max-width: 1300px; /* Max width on large screens */
-  margin: 30px auto; /* Top/bottom margin, auto left/right for centering */
-  padding: 0 15px; /* Padding inside the container */
-  box-sizing: border-box;
-  flex-grow: 1; /* Allows container to fill space if footer is added */
+/* Main Content Layout */
+.main-content {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 30px; /* Adjust gap */
+  padding: 30px 20px; /* Add top/bottom padding */
+  max-width: 1400px; /* Slightly increase max-width if desired */
+  margin: 0 auto;
+  flex-grow: 1; /* Allow main content to take remaining vertical space */
+  width: 100%; /* Ensure it takes full width */
+  box-sizing: border-box; /* Include padding in width calculation */
 }
 
-.App-main h2 {
-  text-align: center;
-  font-size: 2.2rem;
-  font-weight: 700;
-  color: var(--accent-color);
-  margin-bottom: 40px; /* Increased spacing */
+/* Section Styling */
+.user-section,
+.catalog-section {
+  background-color: #ffffff; /* White background for sections */
+  padding: 25px;
+  border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  text-align: left; /* Align text left within sections */
+  flex: 1; /* Allow sections to grow */
+  min-width: 300px; /* Minimum width before wrapping */
 }
 
-/* --- Catalog Grid --- */
+.user-section {
+  max-width: 400px; /* Limit width of user section */
+  flex-grow: 0; /* Don't let user section grow as much */
+}
+
+
+h2 {
+  font-size: 1.8rem;
+  color: #282c34; /* Darker heading color */
+  margin-top: 0;
+  margin-bottom: 20px;
+  border-bottom: 2px solid #eee; /* Subtle separator */
+  padding-bottom: 10px;
+}
+
+/* Custom File Upload Button */
+.upload-controls {
+  display: flex;
+  align-items: center;
+  gap: 10px; /* Space between button and file name */
+  margin-bottom: 20px;
+}
+
+input[type="file"] {
+  display: none; /* Hide the default input */
+}
+
+.custom-file-upload {
+  border: 1px solid #ccc;
+  display: inline-block;
+  padding: 8px 15px;
+  cursor: pointer;
+  background-color: #5a67d8; /* Example button color */
+  color: white;
+  border-radius: 4px;
+  font-weight: bold;
+  transition: background-color 0.2s ease;
+}
+
+.custom-file-upload:hover {
+  background-color: #434190; /* Darker hover */
+}
+
+.file-name {
+  font-style: italic;
+  color: #555;
+}
+
+/* Image Preview */
+.image-preview img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  margin-top: 15px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+/* Catalog List Layout */
 .catalog-list {
   display: grid;
-  /* Responsive grid: fills space, minimum item width 240px */
-  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-  gap: 35px; /* Increased gap */
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); /* Responsive grid */
+  gap: 20px; /* Space between items */
 }
 
-/* --- Catalog Item Card --- */
+/* Catalog Item Styling */
 .catalog-item {
-  background-color: var(--card-bg);
-  border: 1px solid var(--card-border);
-  border-radius: 10px; /* Slightly more rounded */
-  overflow: hidden;
-  box-shadow: 0 5px 15px var(--shadow-color);
-  transition: transform 0.25s ease, box-shadow 0.25s ease;
+  background-color: #f9f9f9; /* Slightly off-white item background */
+  border: 1px solid #e0e0e0;
+  border-radius: 6px;
+  overflow: hidden; /* Ensure content stays within bounds */
   display: flex;
   flex-direction: column;
-  cursor: pointer; /* Indicate interactivity */
+  transition: box-shadow 0.2s ease;
 }
 
 .catalog-item:hover {
-  transform: translateY(-8px); /* Enhanced lift effect */
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.12); /* Stronger shadow on hover */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
 }
 
 .item-image-placeholder {
-  width: 100%;
-  /* Maintain aspect ratio (e.g., 4:3). Adjust padding-top % as needed */
-  padding-top: 110%;
-  position: relative;
-  background-color: var(--placeholder-bg);
-  color: var(--placeholder-text);
-  font-weight: bold;
+  background-color: #e0e0e0; /* Placeholder background */
+  height: 180px; /* Fixed height for placeholder */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #888;
   font-size: 0.9rem;
-  border-bottom: 1px solid var(--card-border); /* Separator */
-}
-
-.item-image-placeholder::before {
-  content: 'Image'; /* Simpler text */
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
 }
 
 .item-details {
-  padding: 20px; /* Increased padding */
+  padding: 15px;
   text-align: center;
-  flex-grow: 1; /* Allow details to fill space if needed */
 }
 
 .item-details h3 {
-  margin-top: 0;
-  margin-bottom: 10px;
-  font-size: 1.3rem;
-  font-weight: 700;
-  color: var(--accent-color);
+  font-size: 1.1rem;
+  margin: 0 0 5px 0;
+  color: #333;
 }
 
 .item-details p {
-  margin: 0;
+  font-size: 1rem;
   color: #555;
-  font-weight: 700; /* Bolder price */
-  font-size: 1.1rem;
+  margin: 0;
 }
 
-/* --- Loading / Error States --- */
-.App-main p { /* Style loading/error messages */
-  font-size: 1.2em;
-  text-align: center;
-  padding: 40px 20px;
-  color: #666;
+/* Error Message */
+.error-message {
+  color: #d9534f; /* Red color for errors */
+  font-weight: bold;
 }
 
-/* --- Media Queries for Fine-tuning Responsiveness --- */
+/* Loading Message */
+/* (You can add specific styling if needed) */
+
+/* Responsive Adjustments */
 @media (max-width: 768px) {
-  .App-header h1 {
-    font-size: 2.2rem;
+  .main-content {
+    flex-direction: column; /* Stack sections vertically */
+    align-items: center; /* Center sections when stacked */
   }
-  .App-main h2 {
-    font-size: 1.8rem;
-  }
-  .container {
-    width: 95%;
-    margin-top: 20px;
-    margin-bottom: 20px;
-  }
-  .catalog-list {
-    gap: 25px;
-     /* Adjust minmax if needed for tablets */
-     grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-  }
-  .item-details {
-    padding: 15px;
-  }
-}
 
-@media (max-width: 480px) {
-  .App-header h1 {
-    font-size: 1.8rem;
+  .user-section,
+  .catalog-section {
+    width: 90%; /* Take more width on smaller screens */
+    max-width: 500px; /* Limit max width */
   }
-  .App-main h2 {
-    font-size: 1.5rem;
-  }
-   .container {
-    padding: 0 10px; /* Reduce padding on very small screens */
-  }
+
   .catalog-list {
-     /* Ensure items take full width on smallest screens */
-    grid-template-columns: 1fr;
-    gap: 20px;
-  }
-  .item-details h3 {
-    font-size: 1.1rem;
-  }
-   .item-details p {
-    font-size: 1rem;
+     grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); /* Adjust grid for smaller screens */
   }
 }

@@ -13,6 +13,14 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
+html,
+body,
+#root {
+  height: 100%; /* Make sure html, body, and root div take full height */
+  margin: 0; /* Remove default body margin */
+  padding: 0; /* Remove default padding */
+}
+
 a {
   font-weight: 500;
   color: #646cff;
@@ -23,11 +31,19 @@ a:hover {
 }
 
 body {
-  margin: 0;
-  display: flex;
-  place-items: center;
-  min-width: 320px;
-  min-height: 100vh;
+  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+  color-scheme: light dark;
+  color: rgba(255, 255, 255, 0.87);
+  background-color: #242424;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  /* Remove display: flex and place-items: center */
+  /* min-width: 320px; */ /* Keep or remove based on preference */
+  /* min-height: 100vh; */ /* Replaced by height: 100% */
 }
 
 h1 {
@@ -64,5 +80,9 @@ button:focus-visible {
   }
   button {
     background-color: #f9f9f9;
+  }
+  body {
+     background-color: var(--bg-color, #f4f7f6); /* Use variable from App.css or fallback */
+     color: var(--text-color, #333);
   }
 }
