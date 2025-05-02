@@ -1,0 +1,35 @@
+# Operating System Files
+.DS_Store
+Thumbs.db
+
+# Node / React Frontend
+frontend/node_modules/
+frontend/dist/
+frontend/build/
+frontend/.env
+frontend/.env*.local
+frontend/npm-debug.log*
+frontend/yarn-debug.log*
+frontend/yarn-error.log*
+frontend/.pnp/
+frontend/.pnp.js
+
+# Python / Flask Backend
+backend/__pycache__/
+backend/*.py[cod]
+backend/.venv/
+backend/instance/
+backend/.env
+backend/.flaskenv
+backend/pip-log.txt
+backend/pip-delete-this-directory.txt
+backend/htmlcov/
+backend/.pytest_cache/
+backend/.hypothesis/
+
+# VS Code
+.vscode/
+
+# Other
+*.env
+*.log
