@@ -20,7 +20,7 @@ npm run dev
 cd backend
 python -m venv .venv
 
-## Activate virtual environment (see OS-specific commands):
+## Activate virtual environment (see OS-specific commands)
 
 - Windows (Git Bash/WSL): source .venv/Scripts/activate
 - Windows (Cmd/PS): .venv\Scripts\activate
