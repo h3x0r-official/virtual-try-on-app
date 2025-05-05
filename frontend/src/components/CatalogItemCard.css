@@ -5,18 +5,34 @@
 
   /* Card styles */
   background-color: var(--card-bg, #ffffff);
-  border: 1px solid var(--card-border, #e0e0e0);
+  border: 2px solid var(--card-border, #e0e0e0); /* Use border instead of 1px */
   border-radius: 8px; /* Slightly more rounded */
   overflow: hidden;
   display: flex; /* Use flex for internal layout */
   flex-direction: column;
-  transition: box-shadow 0.2s ease, transform 0.2s ease; /* Add transform transition */
+  transition: box-shadow 0.2s ease, transform 0.2s ease, border-color 0.2s ease; /* Add border-color transition */
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05); /* Subtle shadow */
 }
 
 .catalog-item-card:hover {
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1); /* Enhanced shadow on hover */
   transform: translateY(-3px); /* Slight lift effect */
+}
+
+/* Styles for the selected card */
+.catalog-item-card.selected {
+  border-color: var(--accent-color, #16213e); /* Highlight border with accent color */
+  box-shadow: 0 6px 18px rgba(22, 33, 62, 0.2); /* Stronger shadow */
+  transform: translateY(-4px) scale(1.01); /* Lift and slightly enlarge */
+}
+
+/* Optional: Style the button differently when selected */
+.catalog-item-card.selected .try-on-button {
+  background-color: #5a6268; /* Grey out or change color */
+  cursor: default; /* Indicate it's selected */
+}
+.catalog-item-card.selected .try-on-button:hover {
+   background-color: #5a6268; /* Keep hover consistent */
 }
 
 .card-image-container {

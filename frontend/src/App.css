@@ -36,6 +36,17 @@ body {
   min-height: 100%; /* Ensure App fills the viewport height */
   display: flex;
   flex-direction: column; /* Stack header and main content vertically */
+  text-align: center; /* Example existing style */
+
+  /* Add scaling */
+  transform: scale(0.9);
+  transform-origin: top center; /* Scale from the top center */
+  /* Optional: Adjust width/max-width if scaling causes layout issues */
+  /* width: calc(100% / 0.9); */ /* Example: Compensate width if needed */
+  /* max-width: calc(1600px / 0.9); */ /* Example: Compensate max-width */
+  margin: 0 auto; /* Ensure it stays centered horizontally */
+  /* Add some top margin if needed after scaling */
+  /* margin-top: 20px; */
 }
 
 .App-header {

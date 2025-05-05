@@ -152,12 +152,18 @@ function App() {
 
   // Handler for when a "Try On" button is clicked on a card
   const handleTryOnSelect = (item) => {
-    console.log("Selected item for Try On:", item);
-    setSelectedTryOnItem(item);
-    setTryOnResultUrl(null); // Clear previous result when selecting new item
-    setTryOnError(null); // Clear previous try-on error
-    // You could add more logic here, like highlighting the selected card
-    // or preparing data for the actual try-on API call.
+    // Optional: Toggle selection - if clicking the already selected item, deselect it.
+    if (selectedTryOnItem && selectedTryOnItem.id === item.id) {
+      console.log("Deselected item for Try On:", item);
+      setSelectedTryOnItem(null);
+      setTryOnResultUrl(null); // Clear result if item deselected
+      setTryOnError(null);
+    } else {
+      console.log("Selected item for Try On:", item);
+      setSelectedTryOnItem(item);
+      setTryOnResultUrl(null); // Clear previous result when selecting new item
+      setTryOnError(null);
+    }
   };
 
   // --- New Handler for Generating Try-On ---
@@ -309,6 +315,8 @@ function App() {
                     item={item}
                     // Pass the handler function as a prop
                     onTryOnSelect={handleTryOnSelect}
+                    // Pass down whether this item is the selected one
+                    isSelected={selectedTryOnItem && selectedTryOnItem.id === item.id}
                   />
                 ))
               ) : (
