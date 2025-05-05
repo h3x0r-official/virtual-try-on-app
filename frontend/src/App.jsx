@@ -16,6 +16,8 @@ function App() {
   const [isUploading, setIsUploading] = useState(false);
   // State for the currently selected brand filter
   const [selectedBrand, setSelectedBrand] = useState(ALL_BRANDS_OPTION); // Default to 'All Brands'
+  // Add state for the item selected for try-on
+  const [selectedTryOnItem, setSelectedTryOnItem] = useState(null);
 
   // Effect to fetch catalog based on the selected brand
   useEffect(() => {
@@ -56,6 +58,7 @@ function App() {
   const handleBrandSelect = (brand) => {
     console.log("Brand selected:", brand);
     setSelectedBrand(brand);
+    setSelectedTryOnItem(null); // Clear try-on selection when changing brand
     // Optional: Reset upload state when changing brand
     // setSelectedFile(null);
     // setPreviewUrl(null);
@@ -133,6 +136,13 @@ function App() {
     }
   };
 
+  // Handler for when a "Try On" button is clicked on a card
+  const handleTryOnSelect = (item) => {
+    console.log("Selected item for Try On:", item);
+    setSelectedTryOnItem(item);
+    // You could add more logic here, like highlighting the selected card
+    // or preparing data for the actual try-on API call.
+  };
 
   return (
     <div className="App">
@@ -190,6 +200,13 @@ function App() {
             </p>
           )}
 
+          {/* Display which item is selected for try-on (optional feedback) */}
+          {selectedTryOnItem && (
+            <p className="try-on-selection-info">
+              Selected for Try-On: <strong>{selectedTryOnItem.name}</strong>
+            </p>
+          )}
+
         </section>
 
         {/* Right Column: Catalog Slider */}
@@ -202,7 +219,12 @@ function App() {
               {catalog.length > 0 ? (
                 // Use the CatalogItemCard component here
                 catalog.map(item => (
-                  <CatalogItemCard key={item.id} item={item} />
+                  <CatalogItemCard
+                    key={item.id}
+                    item={item}
+                    // Pass the handler function as a prop
+                    onTryOnSelect={handleTryOnSelect}
+                  />
                 ))
               ) : (
                 <p>No items found for {selectedBrand}.</p>

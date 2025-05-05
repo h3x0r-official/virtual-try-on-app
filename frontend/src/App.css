@@ -260,6 +260,22 @@ input[type="file"] {
 /* Loading Message */
 /* (You can add specific styling if needed) */
 
+/* Style for the try-on selection info in the user section */
+.try-on-selection-info {
+  margin-top: 20px;
+  padding: 10px;
+  background-color: #e7f3ff; /* Light blue background */
+  border: 1px solid #b3d7ff; /* Blue border */
+  border-radius: 4px;
+  font-size: 0.9rem;
+  color: #004085; /* Dark blue text */
+  text-align: center;
+}
+
+.try-on-selection-info strong {
+  font-weight: 600;
+}
+
 /* Responsive Adjustments */
 @media (max-width: 768px) {
   .main-content {

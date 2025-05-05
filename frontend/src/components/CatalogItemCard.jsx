@@ -1,13 +1,20 @@
 import React from 'react';
-import './CatalogItemCard.css'; // We'll create this CSS file next
+import './CatalogItemCard.css';
 
-// Destructure the item prop directly in the function signature
-function CatalogItemCard({ item }) {
-  // Destructure properties from the item object for easier access
+// Accept onTryOnSelect prop
+function CatalogItemCard({ item, onTryOnSelect }) {
   const { name, price, imageUrl, brand } = item;
 
+  // Handler for the button click
+  const handleTryOnClick = () => {
+    // Call the function passed from the parent, providing the item data
+    if (onTryOnSelect) {
+      onTryOnSelect(item);
+    }
+  };
+
   return (
-    <div className="catalog-item-card"> {/* Use a specific class name */}
+    <div className="catalog-item-card">
       {/* Image Section */}
       <div className="card-image-container">
         {imageUrl ? (
@@ -30,8 +37,10 @@ function CatalogItemCard({ item }) {
         <p className="card-price">PKR {price.toFixed(2)}</p> {/* Format price */}
         {/* Display brand if available */}
         {brand && <p className="card-brand">{brand}</p>}
-        {/* Placeholder for Try On Button - Add in the next step */}
-        {/* <button className="try-on-button">Try On</button> */}
+        {/* Add Try On Button */}
+        <button className="try-on-button" onClick={handleTryOnClick}>
+          Try On
+        </button>
       </div>
     </div>
   );

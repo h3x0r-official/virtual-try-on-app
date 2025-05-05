@@ -75,16 +75,16 @@
 .card-brand {
   font-size: 0.8rem; /* Smaller brand text */
   color: #777; /* Lighter color */
-  margin-top: auto; /* Push brand/button to bottom if space allows */
+  /* margin-top: auto; */ /* Remove auto margin if button should always be below brand */
   padding-top: 8px; /* Space above brand/button */
   text-transform: uppercase;
   letter-spacing: 0.5px;
+  margin-bottom: 10px; /* Add space between brand and button */
 }
 
-/* Placeholder for Try On Button styles - Add when button is implemented */
-/*
+/* Styles for Try On Button */
 .try-on-button {
-  margin-top: 10px;
+  margin-top: auto; /* Push button to bottom if space allows */
   padding: 8px 12px;
   background-color: var(--accent-color, #16213e);
   color: var(--header-text, #ffffff);
@@ -92,10 +92,16 @@
   border-radius: 4px;
   cursor: pointer;
   font-size: 0.9rem;
-  transition: background-color 0.2s ease;
+  font-weight: 500;
+  transition: background-color 0.2s ease, transform 0.1s ease;
+  width: 100%; /* Make button full width of details section */
+  box-sizing: border-box;
 }
 
 .try-on-button:hover {
-  background-color: var(--accent-hover, #0f182a);
+  background-color: var(--accent-hover, #0f182a); /* Use a slightly darker hover color */
 }
-*/
+
+.try-on-button:active {
+  transform: scale(0.98); /* Add slight press effect */
+}
