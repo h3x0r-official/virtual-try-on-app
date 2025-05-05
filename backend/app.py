@@ -152,6 +152,76 @@ def upload_user_image():
         return jsonify({"error": "File type not allowed"}), 400
 # ------------------------
 
+# --- NEW TRY-ON ENDPOINT ---
+@app.route('/api/tryon', methods=['POST'])
+def process_tryon():
+    """
+    (Simulated) Processes a virtual try-on request.
+    Expects JSON body with 'userImageFilename' and 'clothingItemId'.
+    Returns a simulated result image URL.
+    """
+    if not request.is_json:
+        return jsonify({"error": "Request must be JSON"}), 400
+
+    data = request.get_json()
+    user_image_filename = data.get('userImageFilename')
+    clothing_item_id = data.get('clothingItemId')
+
+    if not user_image_filename or not clothing_item_id:
+        return jsonify({"error": "Missing 'userImageFilename' or 'clothingItemId' in request body"}), 400
+
+    try:
+        # 1. Validate user image file existence
+        user_image_path = os.path.join(app.config['UPLOAD_FOLDER'], secure_filename(user_image_filename))
+        if not os.path.exists(user_image_path):
+            print(f"Try-on Error: User image not found at {user_image_path}")
+            return jsonify({"error": f"User image '{user_image_filename}' not found on server"}), 404
+
+        # 2. Validate clothing item existence
+        clothing_item = ClothingItem.query.get(clothing_item_id)
+        if not clothing_item:
+            print(f"Try-on Error: Clothing item ID {clothing_item_id} not found")
+            return jsonify({"error": f"Clothing item with ID {clothing_item_id} not found"}), 404
+
+        # --- SIMULATED TRY-ON PROCESSING ---
+        print("-" * 20)
+        print(f"Simulating Try-On:")
+        print(f"  User Image: {user_image_path}")
+        print(f"  Clothing Item: ID={clothing_item.id}, Name='{clothing_item.name}', Image='{clothing_item.imageUrl}'")
+        # In a real application, this is where you would call your
+        # image processing library/service (e.g., OpenCV, a dedicated ML model API)
+        # using user_image_path and clothing_item.imageUrl (or other relevant data).
+        # The result would be a new image file/URL.
+
+        # For now, just return the original clothing item's URL as the "result"
+        simulated_result_url = clothing_item.imageUrl
+        print(f"  Simulated Result URL: {simulated_result_url}")
+        print("-" * 20)
+        # --- END SIMULATION ---
+
+        if not simulated_result_url:
+             # Handle case where clothing item might not have an image URL
+             print("Try-on Warning: Clothing item has no imageUrl to use for simulation.")
+             # You might return a default placeholder image URL here instead
+             return jsonify({
+                 "message": "Try-on processed (simulated), but clothing item has no image.",
+                 "resultImageUrl": None # Or a placeholder URL
+                 }), 200
+
+
+        return jsonify({
+            "message": "Try-on generated successfully (simulated).",
+            "resultImageUrl": simulated_result_url
+            }), 200
+
+    except Exception as e:
+        print(f"Error during try-on processing: {e}")
+        # Log the full exception for debugging if needed:
+        # import traceback
+        # print(traceback.format_exc())
+        return jsonify({"error": "An internal error occurred during try-on processing"}), 500
+# -------------------------
+
 # --- Database Initialization Command (Optional but Recommended) ---
 # You can run this once from the Flask shell to create tables
 # In your terminal (with venv activated):

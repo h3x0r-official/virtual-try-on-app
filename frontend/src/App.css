@@ -276,6 +276,88 @@ input[type="file"] {
   font-weight: 600;
 }
 
+/* User Section Adjustments */
+.user-section h2 {
+  margin-bottom: 20px;
+}
+
+.upload-status {
+  margin-top: 10px;
+  font-size: 0.9rem;
+  color: #555;
+}
+.upload-status:not(:empty) { /* Add margin only if status exists */
+    margin-bottom: 15px;
+}
+
+.try-on-selection-info {
+  margin-top: 15px; /* Adjusted margin */
+  margin-bottom: 15px; /* Add bottom margin */
+  /* ... keep existing background, border, etc ... */
+}
+
+/* Generate Try-On Button */
+.generate-tryon-button {
+  display: block; /* Make it block level */
+  width: 100%; /* Full width */
+  padding: 12px 15px;
+  margin-top: 20px; /* Space above button */
+  background-color: #28a745; /* Green color */
+  color: white;
+  border: none;
+  border-radius: 5px;
+  font-size: 1.1rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.2s ease, opacity 0.2s ease;
+}
+
+.generate-tryon-button:hover:not(:disabled) {
+  background-color: #218838; /* Darker green on hover */
+}
+
+.generate-tryon-button:disabled {
+  background-color: #cccccc;
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+/* Try-On Specific Error Message */
+.tryon-error {
+  margin-top: 15px;
+  text-align: center;
+}
+
+/* Try-On Result Display */
+.tryon-result {
+  margin-top: 25px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  padding: 15px;
+  background-color: #f9f9f9;
+  text-align: center;
+}
+
+.tryon-result h3 {
+  margin-top: 0;
+  margin-bottom: 15px;
+  color: #333;
+}
+
+.tryon-result img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 4px;
+  border: 1px solid #eee;
+}
+
+.tryon-result-info {
+    margin-top: 15px;
+    font-style: italic;
+    color: #666;
+    text-align: center;
+}
+
 /* Responsive Adjustments */
 @media (max-width: 768px) {
   .main-content {

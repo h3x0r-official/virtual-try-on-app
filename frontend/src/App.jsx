@@ -19,6 +19,12 @@ function App() {
   // Add state for the item selected for try-on
   const [selectedTryOnItem, setSelectedTryOnItem] = useState(null);
 
+  // --- New State for Try-On Process ---
+  const [uploadedFilename, setUploadedFilename] = useState(null); // Store filename from upload response
+  const [tryOnResultUrl, setTryOnResultUrl] = useState(null); // Store the result image URL
+  const [isGeneratingTryOn, setIsGeneratingTryOn] = useState(false); // Loading state for try-on API call
+  const [tryOnError, setTryOnError] = useState(null); // Error state for try-on API call
+
   // Effect to fetch catalog based on the selected brand
   useEffect(() => {
     const fetchCatalog = async () => {
@@ -68,6 +74,9 @@ function App() {
   // Update handler to create preview URL
   const handleFileChange = (event) => {
     setUploadStatus(''); // Clear previous status on new file selection
+    setUploadedFilename(null); // Clear previous upload filename
+    setTryOnResultUrl(null); // Clear previous result
+    setTryOnError(null); // Clear previous try-on error
     if (event.target.files && event.target.files[0]) {
       const file = event.target.files[0];
 
@@ -104,6 +113,9 @@ function App() {
 
     setIsUploading(true); // Disable button
     setUploadStatus('Uploading...');
+    setUploadedFilename(null); // Clear previous filename
+    setTryOnResultUrl(null); // Clear previous result
+    setTryOnError(null); // Clear previous try-on error
     const formData = new FormData();
     // 'user_image' is the key the backend will expect
     formData.append('user_image', selectedFile);
@@ -124,13 +136,15 @@ function App() {
       }
 
       console.log('Upload successful:', result);
-      setUploadStatus(`Upload successful! ${result.message || ''}`);
+      setUploadStatus(`Upload successful! Ready for Try-On.`);
+      setUploadedFilename(result.filename); // <-- Store the filename
       // Potential next step: Store the returned image identifier/URL from 'result'
       // e.g., setUploadedImageUrl(result.imageUrl);
 
     } catch (err) {
       console.error('Error uploading image:', err);
       setUploadStatus(`Error: ${err.message}`);
+      setUploadedFilename(null); // Ensure filename is null on error
     } finally {
       setIsUploading(false); // Re-enable button
     }
@@ -140,8 +154,54 @@ function App() {
   const handleTryOnSelect = (item) => {
     console.log("Selected item for Try On:", item);
     setSelectedTryOnItem(item);
+    setTryOnResultUrl(null); // Clear previous result when selecting new item
+    setTryOnError(null); // Clear previous try-on error
     // You could add more logic here, like highlighting the selected card
     // or preparing data for the actual try-on API call.
+  };
+
+  // --- New Handler for Generating Try-On ---
+  const handleGenerateTryOn = async () => {
+    if (!uploadedFilename || !selectedTryOnItem) {
+      setTryOnError("Please upload your photo and select a clothing item first.");
+      return;
+    }
+
+    setIsGeneratingTryOn(true);
+    setTryOnError(null);
+    setTryOnResultUrl(null); // Clear previous result
+
+    console.log(`Requesting Try-On: User Image='${uploadedFilename}', Item ID=${selectedTryOnItem.id}`);
+
+    try {
+      const response = await fetch('http://127.0.0.1:5000/api/tryon', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          userImageFilename: uploadedFilename,
+          clothingItemId: selectedTryOnItem.id,
+        }),
+      });
+
+      const result = await response.json(); // Always try to parse JSON
+
+      if (!response.ok) {
+        // Use error message from backend if available
+        throw new Error(result.error || `Try-On failed: ${response.status} ${response.statusText}`);
+      }
+
+      console.log('Try-On successful (simulated):', result);
+      setTryOnResultUrl(result.resultImageUrl); // Store the result URL
+
+    } catch (err) {
+      console.error('Error generating try-on:', err);
+      setTryOnError(`Try-On Error: ${err.message}`);
+      setTryOnResultUrl(null); // Ensure result is null on error
+    } finally {
+      setIsGeneratingTryOn(false);
+    }
   };
 
   return (
@@ -160,7 +220,7 @@ function App() {
       <div className="main-content">
         {/* Left Column: Upload and Preview */}
         <section className="user-section">
-          <h2>Upload Your Photo</h2>
+          <h2>Your Photo & Try-On</h2> {/* Updated Title */}
           <div className="upload-controls">
             <label htmlFor="file-upload" className="custom-file-upload">
               Browse...
@@ -170,7 +230,7 @@ function App() {
               type="file"
               accept="image/*" // Only allow image files
               onChange={handleFileChange}
-              disabled={isUploading} // Disable input during upload
+              disabled={isUploading || isGeneratingTryOn} // Disable input during upload
             />
             {selectedFile && <span className="file-name">{selectedFile.name}</span>}
           </div>
@@ -182,7 +242,7 @@ function App() {
           )}
 
           {/* Upload Button - appears only when a file is selected */}
-          {selectedFile && (
+          {selectedFile && !uploadedFilename && ( // Show only if file selected but not yet successfully uploaded
             <button
               onClick={handleImageUpload}
               className="upload-button"
@@ -203,8 +263,33 @@ function App() {
           {/* Display which item is selected for try-on (optional feedback) */}
           {selectedTryOnItem && (
             <p className="try-on-selection-info">
-              Selected for Try-On: <strong>{selectedTryOnItem.name}</strong>
+              Selected: <strong>{selectedTryOnItem.name}</strong>
             </p>
+          )}
+
+          {/* Generate Try-On Button */}
+          <button
+            onClick={handleGenerateTryOn}
+            className="generate-tryon-button" // New class for styling
+            disabled={!uploadedFilename || !selectedTryOnItem || isGeneratingTryOn || isUploading}
+          >
+            {isGeneratingTryOn ? 'Generating...' : 'Generate Try-On'}
+          </button>
+
+          {/* Try-On Error Message */}
+          {tryOnError && <p className="error-message tryon-error">{tryOnError}</p>}
+
+          {/* Try-On Result Display */}
+          {isGeneratingTryOn && <p>Generating try-on image...</p>}
+          {tryOnResultUrl && (
+            <div className="tryon-result">
+              <h3>Try-On Result (Simulated)</h3>
+              <img src={tryOnResultUrl} alt="Simulated try-on result" />
+            </div>
+          )}
+          {/* Handle case where simulation returns null */}
+          {!isGeneratingTryOn && !tryOnError && tryOnResultUrl === null && uploadedFilename && selectedTryOnItem && (
+            <p className="tryon-result-info">Try-on generated, but no result image available (item might be missing image).</p>
           )}
 
         </section>

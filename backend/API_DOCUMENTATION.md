@@ -129,6 +129,63 @@ The API is served from the root of the Flask application (e.g., `http://127.0.0.
 
 ---
 
+### 5. Generate Virtual Try-On (Simulated)
+
+* **Endpoint:** `/api/tryon`
+* **Method:** `POST`
+* **Description:** (Simulated) Takes a user image identifier and a clothing item identifier, performs the virtual try-on process, and returns a URL to the resulting image. **Note:** The actual image processing is currently simulated; it returns the original clothing item's image URL as a placeholder result.
+* **Request:**
+  * **Content-Type:** `application/json`
+  * **Body:**
+
+        ```json
+        {
+          "userImageFilename": "user_photo.jpg",
+          "clothingItemId": 123
+        }
+        ```
+
+    * `userImageFilename` (string, required): The filename returned by the `/api/upload` endpoint for the user's photo.
+    * `clothingItemId` (integer, required): The ID of the selected clothing item.
+* **Response:**
+  * **Success (200 OK):**
+
+        ```json
+        {
+          "message": "Try-on generated successfully (simulated).",
+          "resultImageUrl": "http://example.com/images/kurta1.jpg"
+        }
+        ```
+
+    * `resultImageUrl` (string | null): The URL of the generated try-on image (currently simulated as the original clothing item URL). Can be `null` if the simulation fails or the item has no image.
+  * **Error (400 Bad Request):** If the request body is not JSON or missing required fields.
+
+        ```json
+        { "error": "Request must be JSON" }
+        ```
+
+        ```json
+        { "error": "Missing 'userImageFilename' or 'clothingItemId' in request body" }
+        ```
+
+  * **Error (404 Not Found):** If the specified `userImageFilename` or `clothingItemId` does not exist.
+
+        ```json
+        { "error": "User image '<filename>' not found on server" }
+        ```
+
+        ```json
+        { "error": "Clothing item with ID <id> not found" }
+        ```
+
+  * **Error (500 Internal Server Error):** For unexpected errors during processing.
+
+        ```json
+        { "error": "An internal error occurred during try-on processing" }
+        ```
+
+---
+
 ### Add Documentation for New Endpoints
 
 (Add documentation for new endpoints here as they are created)
