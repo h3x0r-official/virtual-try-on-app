@@ -7,6 +7,8 @@ function App() {
   const [error, setError] = useState(null);
   const [selectedFile, setSelectedFile] = useState(null);
   const [previewUrl, setPreviewUrl] = useState(null); // State for image preview URL
+  const [uploadStatus, setUploadStatus] = useState(''); // State for upload feedback
+  const [isUploading, setIsUploading] = useState(false); // State to disable button during upload
 
   useEffect(() => {
     const fetchCatalog = async () => {
@@ -32,8 +34,18 @@ function App() {
 
   // Update handler to create preview URL
   const handleFileChange = (event) => {
+    setUploadStatus(''); // Clear previous status on new file selection
     if (event.target.files && event.target.files[0]) {
       const file = event.target.files[0];
+
+      // Basic validation (Example: check if it's an image)
+      if (!file.type.startsWith('image/')) {
+        setUploadStatus('Error: Please select an image file.');
+        setSelectedFile(null);
+        setPreviewUrl(null);
+        return; // Stop processing if not an image
+      }
+
       console.log("Selected file:", file.name);
       setSelectedFile(file);
 
@@ -49,6 +61,48 @@ function App() {
       setPreviewUrl(null); // Clear preview if no file is selected
     }
   };
+
+  // Function to handle the actual upload to the backend
+  const handleImageUpload = async () => {
+    if (!selectedFile) {
+      setUploadStatus('Please select a file first.');
+      return;
+    }
+
+    setIsUploading(true); // Disable button
+    setUploadStatus('Uploading...');
+    const formData = new FormData();
+    // 'user_image' is the key the backend will expect
+    formData.append('user_image', selectedFile);
+
+    try {
+      // Ensure this URL matches your backend endpoint
+      const response = await fetch('http://127.0.0.1:5000/api/upload', {
+        method: 'POST',
+        body: formData,
+        // No 'Content-Type' header needed for FormData with fetch
+      });
+
+      const result = await response.json(); // Always try to parse JSON
+
+      if (!response.ok) {
+        // Use error message from backend if available, otherwise use status text
+        throw new Error(result.error || `Upload failed: ${response.status} ${response.statusText}`);
+      }
+
+      console.log('Upload successful:', result);
+      setUploadStatus(`Upload successful! ${result.message || ''}`);
+      // Potential next step: Store the returned image identifier/URL from 'result'
+      // e.g., setUploadedImageUrl(result.imageUrl);
+
+    } catch (err) {
+      console.error('Error uploading image:', err);
+      setUploadStatus(`Error: ${err.message}`);
+    } finally {
+      setIsUploading(false); // Re-enable button
+    }
+  };
+
 
   return (
     <div className="App">
@@ -68,17 +122,38 @@ function App() {
             <input
               id="file-upload"
               type="file"
-              accept="image/*"
+              accept="image/*" // Only allow image files
               onChange={handleFileChange}
+              disabled={isUploading} // Disable input during upload
             />
             {selectedFile && <span className="file-name">{selectedFile.name}</span>}
           </div>
           {previewUrl && (
             <div className="image-preview">
-              <h3>Preview:</h3>
-              <img src={previewUrl} alt="Selected preview" style={{ maxWidth: '100%', height: 'auto', marginTop: '10px' }} />
+              {/* Removed <h3>Preview:</h3> for cleaner look */}
+              <img src={previewUrl} alt="Selected preview" />
             </div>
           )}
+
+          {/* Upload Button - appears only when a file is selected */}
+          {selectedFile && (
+            <button
+              onClick={handleImageUpload}
+              className="upload-button"
+              disabled={isUploading} // Disable button while uploading
+              style={{ marginTop: '15px' }}
+            >
+              {isUploading ? 'Uploading...' : 'Upload Image'}
+            </button>
+          )}
+
+          {/* Upload Status Message */}
+          {uploadStatus && (
+            <p className="upload-status" style={{ marginTop: '10px' }}>
+              {uploadStatus}
+            </p>
+          )}
+
         </section>
 
         {/* Right Column: Catalog */}
