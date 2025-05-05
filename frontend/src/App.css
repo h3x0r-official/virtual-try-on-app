@@ -19,6 +19,13 @@
 /* ... existing styles ... */
 
 /* Basic Reset & Body */
+html, body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden; /* Prevent horizontal scrollbar on body too */
+}
+
 body {
   margin: 0;
   font-family: var(--font-primary), -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
@@ -33,20 +40,26 @@ body {
 
 .App {
   /* text-align: center; */ /* Remove center alignment if header/content handle their own */
-  min-height: 100%; /* Ensure App fills the viewport height */
+  min-height: 100vh; /* Use vh for viewport height */
   display: flex;
   flex-direction: column; /* Stack header and main content vertically */
   text-align: center; /* Example existing style */
 
-  /* Add scaling */
+  /* Make the container wider to compensate for scaling */
+  width: 111.11%; /* Approximately 100 / 0.9 */
+  /* Keep max-width if you had one, scaled appropriately */
+  /* max-width: calc(1400px / 0.9); */ /* Example if max-width was 1400px */
+
+  /* Apply scaling */
   transform: scale(0.9);
   transform-origin: top center; /* Scale from the top center */
-  /* Optional: Adjust width/max-width if scaling causes layout issues */
-  /* width: calc(100% / 0.9); */ /* Example: Compensate width if needed */
-  /* max-width: calc(1600px / 0.9); */ /* Example: Compensate max-width */
-  margin: 0 auto; /* Ensure it stays centered horizontally */
-  /* Add some top margin if needed after scaling */
-  /* margin-top: 20px; */
+
+  /* Center the (now wider) container */
+  margin: 0 auto;
+
+  /* Keep other necessary styles */
+  background-color: var(--bg-color); /* Ensure App background covers the wider area */
+  overflow-x: hidden; /* Prevent horizontal scrollbar due to width > 100% */
 }
 
 .App-header {
