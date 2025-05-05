@@ -1,0 +1,101 @@
+.catalog-item-card {
+  /* Set a width for items in the horizontal layout */
+  width: 220px; /* Adjust width as desired */
+  flex-shrink: 0; /* Prevent items from shrinking to fit */
+
+  /* Card styles */
+  background-color: var(--card-bg, #ffffff);
+  border: 1px solid var(--card-border, #e0e0e0);
+  border-radius: 8px; /* Slightly more rounded */
+  overflow: hidden;
+  display: flex; /* Use flex for internal layout */
+  flex-direction: column;
+  transition: box-shadow 0.2s ease, transform 0.2s ease; /* Add transform transition */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05); /* Subtle shadow */
+}
+
+.catalog-item-card:hover {
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1); /* Enhanced shadow on hover */
+  transform: translateY(-3px); /* Slight lift effect */
+}
+
+.card-image-container {
+  width: 100%;
+  height: 240px; /* Adjust height for the new item width */
+  position: relative; /* For potential overlays later */
+  background-color: var(--placeholder-bg, #eee); /* Ensure placeholder has bg */
+}
+
+.card-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover; /* Cover ensures the image fills the container */
+  display: block;
+}
+
+.card-image-placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--placeholder-text, #aaa);
+  font-size: 0.9rem;
+  text-align: center;
+}
+
+.card-details {
+  padding: 12px 15px; /* Adjust padding */
+  text-align: center;
+  flex-grow: 1; /* Allow details section to grow */
+  display: flex;
+  flex-direction: column; /* Stack details vertically */
+}
+
+.card-details h3 {
+  margin-top: 0;
+  margin-bottom: 6px; /* Reduced margin */
+  font-size: 1.05rem; /* Slightly adjusted size */
+  font-weight: 600;
+  line-height: 1.3;
+  /* Limit text lines (optional) */
+  /* display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden; */
+}
+
+.card-price {
+  margin-bottom: 4px; /* Reduced margin */
+  font-size: 1rem;
+  color: #333;
+  font-weight: 500;
+}
+
+.card-brand {
+  font-size: 0.8rem; /* Smaller brand text */
+  color: #777; /* Lighter color */
+  margin-top: auto; /* Push brand/button to bottom if space allows */
+  padding-top: 8px; /* Space above brand/button */
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Placeholder for Try On Button styles - Add when button is implemented */
+/*
+.try-on-button {
+  margin-top: 10px;
+  padding: 8px 12px;
+  background-color: var(--accent-color, #16213e);
+  color: var(--header-text, #ffffff);
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: background-color 0.2s ease;
+}
+
+.try-on-button:hover {
+  background-color: var(--accent-hover, #0f182a);
+}
+*/

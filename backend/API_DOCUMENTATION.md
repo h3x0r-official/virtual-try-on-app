@@ -27,12 +27,13 @@ The API is served from the root of the Flask application (e.g., `http://127.0.0.
 
 ### 2. Get Available Brands
 
-*   **Endpoint:** `/api/brands`
-*   **Method:** `GET`
-*   **Description:** Retrieves a unique, alphabetically sorted list of all non-null brand names present in the clothing catalog.
-*   **Request:** None
-*   **Response:**
-    *   **Success (200 OK):** A JSON array of strings, each representing a unique brand name.
+* **Endpoint:** `/api/brands`
+* **Method:** `GET`
+* **Description:** Retrieves a unique, alphabetically sorted list of all non-null brand names present in the clothing catalog.
+* **Request:** None
+* **Response:**
+  * **Success (200 OK):** A JSON array of strings, each representing a unique brand name.
+
         ```json
         [
           "Breakout",
@@ -40,7 +41,9 @@ The API is served from the root of the Flask application (e.g., `http://127.0.0.
           "Outfitters"
         ]
         ```
-    *   **Error (500 Internal Server Error):** Indicates a problem fetching data from the database.
+
+  * **Error (500 Internal Server Error):** Indicates a problem fetching data from the database.
+
         ```json
         {
           "error": "Could not fetch brands"
@@ -49,14 +52,15 @@ The API is served from the root of the Flask application (e.g., `http://127.0.0.
 
 ### 3. Get Clothing Catalog
 
-*   **Endpoint:** `/api/catalog`
-*   **Method:** `GET`
-*   **Description:** Retrieves a list of available clothing items. Can be filtered by brand.
-*   **Request:**
-    *   **Query Parameters (Optional):**
-        *   `brand` (string): If provided, filters the results to only include items matching the specified brand name (case-sensitive). Example: `/api/catalog?brand=Breakout`
-*   **Response:**
-    *   **Success (200 OK):** An array of clothing item objects (filtered or unfiltered).
+* **Endpoint:** `/api/catalog`
+* **Method:** `GET`
+* **Description:** Retrieves a list of available clothing items. Can be filtered by brand.
+* **Request:**
+  * **Query Parameters (Optional):**
+    * `brand` (string): If provided, filters the results to only include items matching the specified brand name (case-sensitive). Example: `/api/catalog?brand=Breakout`
+* **Response:**
+  * **Success (200 OK):** An array of clothing item objects (filtered or unfiltered).
+
         ```json
         [
           {
@@ -69,8 +73,10 @@ The API is served from the root of the Flask application (e.g., `http://127.0.0.
           // ... potentially more items
         ]
         ```
+
         *Note: `imageUrl` can be a string or `null`. `brand` field is now included.*
-    *   **Error (500 Internal Server Error):** Indicates a problem fetching data from the database.
+  * **Error (500 Internal Server Error):** Indicates a problem fetching data from the database.
+
         ```json
         {
           "error": "Could not fetch catalog"
@@ -122,6 +128,7 @@ The API is served from the root of the Flask application (e.g., `http://127.0.0.
         ```
 
 ---
+
 ### Add Documentation for New Endpoints
 
 (Add documentation for new endpoints here as they are created)

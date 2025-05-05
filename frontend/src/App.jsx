@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import Navbar from './components/Navbar'; // Import the Navbar component
+import CatalogItemCard from './components/CatalogItemCard'; // Import the new component
 import './App.css';
 
 // Define constant for the "All Brands" option, matching Navbar.jsx
@@ -197,31 +198,11 @@ function App() {
           {loading && <p>Loading catalog...</p>}
           {error && <p className="error-message">{error}</p>}
           {!loading && !error && (
-            // Change the className here
             <div className="catalog-slider">
               {catalog.length > 0 ? (
+                // Use the CatalogItemCard component here
                 catalog.map(item => (
-                  <div key={item.id} className="catalog-item">
-                    {/* Check if imageUrl exists before rendering the image */}
-                    {item.imageUrl ? (
-                      <img
-                        src={item.imageUrl}
-                        alt={item.name} // Add alt text for accessibility
-                        className="item-image" // Add a class for potential styling
-                      />
-                    ) : (
-                      // Fallback if no imageUrl is provided
-                      <div className="item-image-placeholder">
-                        <span>Image Not Available</span>
-                      </div>
-                    )}
-                    <div className="item-details">
-                      <h3>{item.name}</h3>
-                      <p>PKR {item.price}</p>
-                      {/* Display brand if available */}
-                      {item.brand && <p className="item-brand">{item.brand}</p>}
-                    </div>
-                  </div>
+                  <CatalogItemCard key={item.id} item={item} />
                 ))
               ) : (
                 <p>No items found for {selectedBrand}.</p>
