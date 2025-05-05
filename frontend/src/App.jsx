@@ -91,10 +91,19 @@ function App() {
               {catalog.length > 0 ? (
                 catalog.map(item => (
                   <div key={item.id} className="catalog-item">
-                    <div className="item-image-placeholder">
-                      {/* Placeholder - Replace with actual image later */}
-                      <span>Image</span>
-                    </div>
+                    {/* Check if imageUrl exists before rendering the image */}
+                    {item.imageUrl ? (
+                      <img
+                        src={item.imageUrl}
+                        alt={item.name} // Add alt text for accessibility
+                        className="item-image" // Add a class for potential styling
+                      />
+                    ) : (
+                      // Fallback if no imageUrl is provided
+                      <div className="item-image-placeholder">
+                        <span>Image Not Available</span>
+                      </div>
+                    )}
                     <div className="item-details">
                       <h3>{item.name}</h3>
                       <p>PKR {item.price}</p>
