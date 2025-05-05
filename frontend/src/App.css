@@ -158,19 +158,28 @@ input[type="file"] {
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
 }
 
+.item-image {
+  width: 100%; /* Make image take full width of its container */
+  height: 180px; /* Set a fixed height (adjust as needed) */
+  object-fit: cover; /* Crop image nicely to fit the dimensions */
+  display: block; /* Remove extra space below image */
+}
+
 .item-image-placeholder {
-  background-color: #e0e0e0; /* Placeholder background */
-  height: 180px; /* Fixed height for placeholder */
+  background-color: var(--placeholder-bg); /* Use variable */
+  height: 180px; /* Match image height */
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #888;
+  color: var(--placeholder-text); /* Use variable */
   font-size: 0.9rem;
+  width: 100%; /* Ensure placeholder takes full width */
 }
 
 .item-details {
   padding: 15px;
   text-align: center;
+  flex-grow: 1; /* Allow details to take remaining space if needed */
 }
 
 .item-details h3 {
