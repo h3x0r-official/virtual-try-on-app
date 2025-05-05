@@ -83,6 +83,11 @@ body {
   flex-grow: 0; /* Don't let user section grow as much */
 }
 
+.catalog-section {
+  flex-grow: 1.5; /* Allow catalog to take more space */
+  min-width: 0; /* Important for flex items containing scrollable content */
+  /* Remove any previous grid/flex settings if they were directly on catalog-section */
+}
 
 h2 {
   font-size: 1.8rem;
@@ -143,6 +148,46 @@ input[type="file"] {
   gap: 20px; /* Space between items */
 }
 
+/* Catalog Slider (Horizontal Scroll) */
+.catalog-slider {
+  display: flex; /* Align items horizontally */
+  overflow-x: auto; /* Enable horizontal scrolling */
+  overflow-y: hidden; /* Hide vertical scrollbar if it appears */
+  padding: 10px 0 20px 0; /* Add some padding, especially bottom for scrollbar */
+  gap: 20px; /* Space between items */
+  /* white-space: nowrap; */ /* Usually not needed with flex, items won't wrap by default */
+
+  /* Optional: Improve scrolling experience on touch devices */
+  -webkit-overflow-scrolling: touch;
+
+  /* Optional: Hide scrollbar visually (functionality remains) */
+  /* For Webkit browsers (Chrome, Safari) */
+  /* &::-webkit-scrollbar { display: none; } */
+  /* For Firefox */
+  /* scrollbar-width: none; */
+  /* For IE/Edge */
+  /* -ms-overflow-style: none; */
+
+  /* Alternative: Style the scrollbar */
+  scrollbar-width: thin; /* Firefox */
+  scrollbar-color: #ccc #f1f1f1; /* Firefox: thumb track */
+}
+/* Webkit (Chrome, Safari) scrollbar styling */
+.catalog-slider::-webkit-scrollbar {
+  height: 8px; /* Height of horizontal scrollbar */
+}
+.catalog-slider::-webkit-scrollbar-track {
+  background: #f1f1f1; /* Track color */
+  border-radius: 4px;
+}
+.catalog-slider::-webkit-scrollbar-thumb {
+  background: #ccc; /* Thumb color */
+  border-radius: 4px;
+}
+.catalog-slider::-webkit-scrollbar-thumb:hover {
+  background: #aaa; /* Thumb color on hover */
+}
+
 /* Catalog Item Styling */
 .catalog-item {
   background-color: #f9f9f9; /* Slightly off-white item background */
@@ -152,22 +197,25 @@ input[type="file"] {
   display: flex;
   flex-direction: column;
   transition: box-shadow 0.2s ease;
+  /* Set a width for items in the horizontal layout */
+  width: 220px; /* Adjust width as desired */
+  flex-shrink: 0; /* Prevent items from shrinking to fit */
 }
 
 .catalog-item:hover {
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
 .item-image {
   width: 100%; /* Make image take full width of its container */
-  height: 180px; /* Set a fixed height (adjust as needed) */
+  height: 240px; /* Adjust height for the new item width */
   object-fit: cover; /* Crop image nicely to fit the dimensions */
   display: block; /* Remove extra space below image */
 }
 
 .item-image-placeholder {
   background-color: var(--placeholder-bg); /* Use variable */
-  height: 180px; /* Match image height */
+  height: 240px; /* Match image height */
   display: flex;
   align-items: center;
   justify-content: center;
@@ -184,14 +232,23 @@ input[type="file"] {
 
 .item-details h3 {
   font-size: 1.1rem;
-  margin: 0 0 5px 0;
+  margin: 0 0 8px 0;
   color: #333;
+  font-weight: 600;
 }
 
 .item-details p {
   font-size: 1rem;
-  color: #555;
-  margin: 0;
+  color: #333;
+  margin: 0 0 5px 0;
+}
+
+.item-brand { /* Style for the brand text */
+  font-size: 0.85rem;
+  color: #666;
+  margin-top: 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 /* Error Message */

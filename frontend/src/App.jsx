@@ -191,14 +191,14 @@ function App() {
 
         </section>
 
-        {/* Right Column: Catalog */}
+        {/* Right Column: Catalog Slider */}
         <section className="catalog-section">
-          {/* Dynamic Title based on selected brand */}
           <h2>{selectedBrand} Catalog</h2>
           {loading && <p>Loading catalog...</p>}
-          {error && <p className="error-message">Error loading catalog: {error}</p>}
+          {error && <p className="error-message">{error}</p>}
           {!loading && !error && (
-            <div className="catalog-list">
+            // Change the className here
+            <div className="catalog-slider">
               {catalog.length > 0 ? (
                 catalog.map(item => (
                   <div key={item.id} className="catalog-item">
