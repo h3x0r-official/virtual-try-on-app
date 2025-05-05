@@ -5,6 +5,7 @@ from dotenv import load_dotenv
 from flask_cors import CORS
 from flask_sqlalchemy import SQLAlchemy # Import SQLAlchemy
 from werkzeug.utils import secure_filename # Import secure_filename
+from sqlalchemy import distinct # Import distinct
 
 load_dotenv() # Load environment variables from .env
 
@@ -35,16 +36,20 @@ class ClothingItem(db.Model):
     name = db.Column(db.String(100), nullable=False)
     price = db.Column(db.Float, nullable=False)
     imageUrl = db.Column(db.String(255), nullable=True) # Assuming URL or path
+    # Add the new brand column
+    brand = db.Column(db.String(50), nullable=True, index=True) # Allow null initially, add index for filtering
 
     def __repr__(self):
-        return f'<ClothingItem {self.name}>'
+        # Optionally include brand in representation
+        return f'<ClothingItem {self.id}: {self.name} ({self.brand or "No Brand"})>'
 
     def to_dict(self):
         return {
             "id": self.id,
             "name": self.name,
             "price": self.price,
-            "imageUrl": self.imageUrl
+            "imageUrl": self.imageUrl,
+            "brand": self.brand # Include brand in the JSON output
         }
 # ----------------------
 
@@ -57,19 +62,65 @@ def allowed_file(filename):
 # Dummy data (keep for now, maybe for seeding later)
 # dummy_catalog = [...] # You can remove or comment this out later
 
+# --- Routes ---
+
+# GET /api/hello - Health check endpoint
 @app.route("/api/hello")
 def hello_world():
     return jsonify(message="Hello from Flask Backend!")
 
+# --- NEW BRANDS ENDPOINT ---
+# GET /api/brands - Retrieve a unique, sorted list of brands
+@app.route('/api/brands')
+def get_brands():
+    """
+    Retrieves a unique list of non-null brand names from the clothing items,
+    sorted alphabetically.
+    """
+    try:
+        # Query for distinct, non-null brand names, ordered alphabetically
+        brands_query = db.session.query(distinct(ClothingItem.brand))\
+            .filter(ClothingItem.brand.isnot(None))\
+            .order_by(ClothingItem.brand)\
+            .all()
+        # The query returns a list of tuples, e.g., [('BrandA',), ('BrandB',)]
+        # Extract the first element from each tuple
+        brands_list = [brand[0] for brand in brands_query]
+        return jsonify(brands_list)
+    except Exception as e:
+        print(f"Error fetching brands: {e}")
+        return jsonify({"error": "Could not fetch brands"}), 500
+# -------------------------
+
+# --- UPDATED CATALOG ENDPOINT ---
+# GET /api/catalog - Retrieve clothing items (optionally filtered by brand)
 @app.route("/api/catalog")
 def get_catalog():
+    """
+    Retrieves clothing items. Accepts an optional 'brand' query parameter
+    to filter results. If no 'brand' is provided, returns all items.
+    """
     try:
-        items = ClothingItem.query.all()
+        # Get the brand filter from query parameters, if provided
+        brand_filter = request.args.get('brand')
+
+        # Start building the query
+        query = ClothingItem.query
+
+        # Apply filter if brand_filter exists
+        if (brand_filter):
+            # Use filter_by for simple equality checks
+            query = query.filter_by(brand=brand_filter)
+            print(f"Filtering catalog for brand: {brand_filter}") # Log filtering
+
+        # Execute the final query (either filtered or unfiltered)
+        items = query.all()
+
         return jsonify([item.to_dict() for item in items])
     except Exception as e:
-        # Log the error e
         print(f"Error fetching catalog: {e}")
         return jsonify({"error": "Could not fetch catalog"}), 500
+# -----------------------------
 
 # --- NEW UPLOAD ROUTE ---
 @app.route('/api/upload', methods=['POST'])

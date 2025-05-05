@@ -1,36 +1,65 @@
 import { useState, useEffect } from 'react';
-import './App.css'; // Make sure this line imports the updated CSS
+import Navbar from './components/Navbar'; // Import the Navbar component
+import './App.css';
+
+// Define constant for the "All Brands" option, matching Navbar.jsx
+const ALL_BRANDS_OPTION = "All Brands";
 
 function App() {
   const [catalog, setCatalog] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [selectedFile, setSelectedFile] = useState(null);
-  const [previewUrl, setPreviewUrl] = useState(null); // State for image preview URL
-  const [uploadStatus, setUploadStatus] = useState(''); // State for upload feedback
-  const [isUploading, setIsUploading] = useState(false); // State to disable button during upload
+  const [previewUrl, setPreviewUrl] = useState(null);
+  const [uploadStatus, setUploadStatus] = useState('');
+  const [isUploading, setIsUploading] = useState(false);
+  // State for the currently selected brand filter
+  const [selectedBrand, setSelectedBrand] = useState(ALL_BRANDS_OPTION); // Default to 'All Brands'
 
+  // Effect to fetch catalog based on the selected brand
   useEffect(() => {
     const fetchCatalog = async () => {
       try {
         setLoading(true);
-        setError(null);
-        const response = await fetch('http://127.0.0.1:5000/api/catalog');
+        setError(null); // Clear previous errors
+
+        // Construct the URL based on the selected brand
+        let fetchUrl = 'http://127.0.0.1:5000/api/catalog';
+        if (selectedBrand !== ALL_BRANDS_OPTION) {
+          // Append the brand query parameter if a specific brand is selected
+          fetchUrl += `?brand=${encodeURIComponent(selectedBrand)}`;
+        }
+
+        console.log(`Fetching catalog from: ${fetchUrl}`); // Log the URL being fetched
+
+        const response = await fetch(fetchUrl);
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
         const data = await response.json();
-        console.log("Fetched Catalog Data:", data);
+        console.log(`Fetched Catalog Data for ${selectedBrand}:`, data);
         setCatalog(data);
       } catch (err) {
-        setError(err.message);
-        console.error("Error fetching catalog:", err);
+        setError(`Failed to load catalog: ${err.message}`);
+        console.error(`Error fetching catalog for ${selectedBrand}:`, err);
+        setCatalog([]); // Clear catalog on error
       } finally {
         setLoading(false);
       }
     };
+
     fetchCatalog();
-  }, []);
+  }, [selectedBrand]); // Re-run this effect whenever selectedBrand changes
+
+  // Handler function to update the selected brand state
+  const handleBrandSelect = (brand) => {
+    console.log("Brand selected:", brand);
+    setSelectedBrand(brand);
+    // Optional: Reset upload state when changing brand
+    // setSelectedFile(null);
+    // setPreviewUrl(null);
+    // setUploadStatus('');
+  };
 
   // Update handler to create preview URL
   const handleFileChange = (event) => {
@@ -110,6 +139,12 @@ function App() {
         <h1>Virtual Try-On</h1>
       </header>
 
+      {/* Render the Navbar component */}
+      <Navbar
+        selectedBrand={selectedBrand}
+        onBrandSelect={handleBrandSelect}
+      />
+
       {/* Main content area */}
       <div className="main-content">
         {/* Left Column: Upload and Preview */}
@@ -158,7 +193,8 @@ function App() {
 
         {/* Right Column: Catalog */}
         <section className="catalog-section">
-          <h2>Clothing Catalog</h2>
+          {/* Dynamic Title based on selected brand */}
+          <h2>{selectedBrand} Catalog</h2>
           {loading && <p>Loading catalog...</p>}
           {error && <p className="error-message">Error loading catalog: {error}</p>}
           {!loading && !error && (
@@ -182,12 +218,13 @@ function App() {
                     <div className="item-details">
                       <h3>{item.name}</h3>
                       <p>PKR {item.price}</p>
-                      {/* Add Try On Button Here Later */}
+                      {/* Display brand if available */}
+                      {item.brand && <p className="item-brand">{item.brand}</p>}
                     </div>
                   </div>
                 ))
               ) : (
-                <p>No items found in the catalog.</p>
+                <p>No items found for {selectedBrand}.</p>
               )}
             </div>
           )}
