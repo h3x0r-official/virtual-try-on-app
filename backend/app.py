@@ -6,6 +6,9 @@ from flask_cors import CORS
 from flask_sqlalchemy import SQLAlchemy # Import SQLAlchemy
 from werkzeug.utils import secure_filename # Import secure_filename
 from sqlalchemy import distinct # Import distinct
+from PIL import Image # Import Pillow
+import requests       # To download image from URL
+import io             # To handle image data from requests
 
 load_dotenv() # Load environment variables from .env
 
@@ -152,11 +155,11 @@ def upload_user_image():
         return jsonify({"error": "File type not allowed"}), 400
 # ------------------------
 
-# --- NEW TRY-ON ENDPOINT ---
+# --- UPDATED TRY-ON ENDPOINT ---
 @app.route('/api/tryon', methods=['POST'])
 def process_tryon():
     """
-    (Simulated) Processes a virtual try-on request.
+    (Simulated) Processes a virtual try-on request using Pillow for basic inspection.
     Expects JSON body with 'userImageFilename' and 'clothingItemId'.
     Returns a simulated result image URL.
     """
@@ -183,31 +186,82 @@ def process_tryon():
             print(f"Try-on Error: Clothing item ID {clothing_item_id} not found")
             return jsonify({"error": f"Clothing item with ID {clothing_item_id} not found"}), 404
 
-        # --- SIMULATED TRY-ON PROCESSING ---
+        # --- SIMULATED TRY-ON PROCESSING (with Pillow example) ---
         print("-" * 20)
-        print(f"Simulating Try-On:")
-        print(f"  User Image: {user_image_path}")
+        print(f"Simulating Try-On (using Pillow):")
+        print(f"  User Image Path: {user_image_path}")
         print(f"  Clothing Item: ID={clothing_item.id}, Name='{clothing_item.name}', Image='{clothing_item.imageUrl}'")
-        # In a real application, this is where you would call your
-        # image processing library/service (e.g., OpenCV, a dedicated ML model API)
-        # using user_image_path and clothing_item.imageUrl (or other relevant data).
-        # The result would be a new image file/URL.
+
+        user_img = None
+        clothing_img = None
+
+        try:
+            # 3. Load user image with Pillow
+            user_img = Image.open(user_image_path)
+            # Ensure image is in RGB mode for consistency (optional, depends on model needs)
+            # user_img = user_img.convert("RGB")
+            print(f"  User Image Info: Format={user_img.format}, Size={user_img.size}, Mode={user_img.mode}")
+
+            # 4. Load clothing image (assuming imageUrl is a downloadable URL)
+            if clothing_item.imageUrl:
+                try:
+                    print(f"  Attempting to download clothing image from: {clothing_item.imageUrl}")
+                    # Use a timeout for the request
+                    response = requests.get(clothing_item.imageUrl, stream=True, timeout=15)
+                    response.raise_for_status() # Raise HTTPError for bad responses (4xx or 5xx)
+
+                    # Check content type (optional but good practice)
+                    content_type = response.headers.get('content-type')
+                    if content_type and 'image' in content_type.lower():
+                        # Open image directly from response content using io.BytesIO
+                        clothing_img = Image.open(io.BytesIO(response.content))
+                        # clothing_img = clothing_img.convert("RGBA") # Convert to RGBA if transparency needed
+                        print(f"  Clothing Image Info: Format={clothing_img.format}, Size={clothing_img.size}, Mode={clothing_img.mode}")
+                    else:
+                         print(f"  Warning: URL did not return an image content-type (got '{content_type}'). Skipping clothing image load.")
+
+                except requests.exceptions.RequestException as req_err:
+                    print(f"  Warning: Could not download clothing image from URL ({clothing_item.imageUrl}): {req_err}")
+                except Exception as img_err:
+                     print(f"  Warning: Could not load clothing image from URL ({clothing_item.imageUrl}) with Pillow: {img_err}")
+            else:
+                print("  Warning: Clothing item has no imageUrl.")
+
+            # --- Placeholder for actual image manipulation using user_img and clothing_img ---
+            # This is where you would use Pillow functions like resize, paste, filter, etc.
+            # based on the logic of your chosen try-on method.
+            # Example:
+            # if user_img and clothing_img:
+            #    # Simple resize and paste (no alignment, just demonstration)
+            #    resized_clothing = clothing_img.resize((user_img.width // 3, user_img.height // 3))
+            #    paste_x = (user_img.width - resized_clothing.width) // 2
+            #    paste_y = (user_img.height - resized_clothing.height) // 2
+            #    # Create a copy to avoid modifying the original loaded image
+            #    result_img = user_img.copy()
+            #    # Use clothing image itself as mask if it has alpha (RGBA), otherwise no mask
+            #    mask = resized_clothing if resized_clothing.mode == 'RGBA' else None
+            #    result_img.paste(resized_clothing, (paste_x, paste_y), mask=mask)
+            #    # Now you would save result_img and generate its URL
+            #    # result_img.save(result_save_path)
+            #    # real_result_url = ...
+            # ---------------------------------------------------------------------------------
+
+        except Exception as pil_err:
+            # Log errors during Pillow processing but don't necessarily stop the simulation
+            print(f"  Error during Pillow processing: {pil_err}")
 
         # For now, just return the original clothing item's URL as the "result"
         simulated_result_url = clothing_item.imageUrl
-        print(f"  Simulated Result URL: {simulated_result_url}")
+        print(f"  Simulated Result URL (unchanged): {simulated_result_url}")
         print("-" * 20)
         # --- END SIMULATION ---
 
         if not simulated_result_url:
-             # Handle case where clothing item might not have an image URL
              print("Try-on Warning: Clothing item has no imageUrl to use for simulation.")
-             # You might return a default placeholder image URL here instead
              return jsonify({
                  "message": "Try-on processed (simulated), but clothing item has no image.",
-                 "resultImageUrl": None # Or a placeholder URL
+                 "resultImageUrl": None
                  }), 200
-
 
         return jsonify({
             "message": "Try-on generated successfully (simulated).",
@@ -216,9 +270,8 @@ def process_tryon():
 
     except Exception as e:
         print(f"Error during try-on processing: {e}")
-        # Log the full exception for debugging if needed:
         # import traceback
-        # print(traceback.format_exc())
+        # print(traceback.format_exc()) # Uncomment for detailed debugging
         return jsonify({"error": "An internal error occurred during try-on processing"}), 500
 # -------------------------
 
