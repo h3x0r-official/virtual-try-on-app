@@ -72,7 +72,7 @@ d:\App\
 ### 1. Clone the Repository
 
 ```bash
-git clone <your-repository-url>
+git clone https://github.com/h3x0r-official/virtual-try-on-app.git
 cd App
 ```
 
