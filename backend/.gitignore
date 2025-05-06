@@ -1,7 +1,8 @@
-.venv/
+venv/
 __pycache__/
 *.pyc
-*.pyo
-*.pyd
+*.log
+logs/
+uploads/
+*.env
 .env
-uploads/  # Add this line

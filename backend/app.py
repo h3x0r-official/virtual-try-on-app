@@ -1,5 +1,7 @@
 # backend/app.py
 import os
+import logging # Import logging
+from logging.handlers import RotatingFileHandler # For rotating logs
 from flask import Flask, jsonify, request # Import request
 from dotenv import load_dotenv
 from flask_cors import CORS
@@ -14,6 +16,31 @@ load_dotenv() # Load environment variables from .env
 
 app = Flask(__name__)
 CORS(app)
+
+# --- Logging Configuration ---
+log_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'logs')
+os.makedirs(log_dir, exist_ok=True) # Create logs directory if it doesn't exist
+log_file = os.path.join(log_dir, 'backend.log')
+
+# Use RotatingFileHandler to limit log file size
+# Max 10MB per file, keep 5 backup files
+file_handler = RotatingFileHandler(log_file, maxBytes=1024*1024*10, backupCount=5)
+file_handler.setLevel(logging.INFO) # Set level for file logging (e.g., INFO, DEBUG)
+
+# Define log format
+formatter = logging.Formatter(
+    '%(asctime)s %(levelname)s: %(message)s [in %(pathname)s:%(lineno)d]'
+)
+file_handler.setFormatter(formatter)
+
+# Add handler to the Flask app's logger
+# Remove default handlers if necessary to avoid duplicate console output when debug=True
+# app.logger.handlers.clear() # Optional: Uncomment if you ONLY want file logging
+app.logger.addHandler(file_handler)
+app.logger.setLevel(logging.INFO) # Set overall level for the app logger
+
+app.logger.info('Backend application starting up...') # Log startup
+# --------------------------
 
 # --- Configuration ---
 # Define the upload folder and allowed extensions
@@ -111,17 +138,16 @@ def get_catalog():
         query = ClothingItem.query
 
         # Apply filter if brand_filter exists
-        if (brand_filter):
-            # Use filter_by for simple equality checks
+        if brand_filter:
             query = query.filter_by(brand=brand_filter)
-            print(f"Filtering catalog for brand: {brand_filter}") # Log filtering
+            app.logger.info(f"Filtering catalog for brand: {brand_filter}") # Use logger
 
         # Execute the final query (either filtered or unfiltered)
         items = query.all()
 
         return jsonify([item.to_dict() for item in items])
     except Exception as e:
-        print(f"Error fetching catalog: {e}")
+        app.logger.exception(f"Error fetching catalog: {e}") # Use logger.exception
         return jsonify({"error": "Could not fetch catalog"}), 500
 # -----------------------------
 
