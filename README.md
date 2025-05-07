@@ -73,7 +73,7 @@ d:\App\
 
 ```bash
 git clone https://github.com/h3x0r-official/virtual-try-on-app.git
-cd App
+cd virtual-try-on-app
 ```
 
 ### 2. Backend Setup
