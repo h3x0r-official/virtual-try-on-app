@@ -5,6 +5,7 @@ import './App.css';
 
 // Define constant for the "All Brands" option, matching Navbar.jsx
 const ALL_BRANDS_OPTION = "All Brands";
+const BACKEND_URL = "http://127.0.0.1:5000";
 
 function App() {
   const [catalog, setCatalog] = useState([]);
@@ -293,8 +294,8 @@ function App() {
           )}
           {tryOnResultUrl && (
             <div className="tryon-result">
-              <h3>Try-On Result (Simulated)</h3>
-              <img src={tryOnResultUrl} alt="Simulated try-on result" />
+              <h3>Try-On Result</h3>
+              <img src={tryOnResultUrl.startsWith('/uploads/') ? BACKEND_URL + tryOnResultUrl : tryOnResultUrl} alt="Try-on result" />
             </div>
           )}
 
