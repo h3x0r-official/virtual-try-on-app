@@ -1,6 +1,7 @@
 .catalog-item-card {
   /* Set a width for items in the horizontal layout */
-  width: 220px; /* Adjust width as desired */
+  width: 100%;
+  max-width: 220px; /* Adjust width as desired */
   flex-shrink: 0; /* Prevent items from shrinking to fit */
 
   /* Card styles */

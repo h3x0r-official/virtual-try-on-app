@@ -282,20 +282,20 @@ function App() {
             {isGeneratingTryOn ? 'Generating...' : 'Generate Try-On'}
           </button>
 
-          {/* Try-On Error Message */}
+          {/* Try-On Error Message & Spinner */}
           {tryOnError && <p className="error-message tryon-error">{tryOnError}</p>}
 
+          {isGeneratingTryOn && <div className="spinner"></div>}
+
           {/* Try-On Result Display */}
-          {isGeneratingTryOn && <p>Generating try-on image...</p>}
+          {isGeneratingTryOn && !tryOnError && tryOnResultUrl === null && uploadedFilename && selectedTryOnItem && (
+            <p className="tryon-result-info">Try-on generated, but no result image available (item might be missing image).</p>
+          )}
           {tryOnResultUrl && (
             <div className="tryon-result">
               <h3>Try-On Result (Simulated)</h3>
               <img src={tryOnResultUrl} alt="Simulated try-on result" />
             </div>
-          )}
-          {/* Handle case where simulation returns null */}
-          {!isGeneratingTryOn && !tryOnError && tryOnResultUrl === null && uploadedFilename && selectedTryOnItem && (
-            <p className="tryon-result-info">Try-on generated, but no result image available (item might be missing image).</p>
           )}
 
         </section>
@@ -303,7 +303,7 @@ function App() {
         {/* Right Column: Catalog Slider */}
         <section className="catalog-section">
           <h2>{selectedBrand} Catalog</h2>
-          {loading && <p>Loading catalog...</p>}
+          {loading && <div className="spinner"></div>}
           {error && <p className="error-message">{error}</p>}
           {!loading && !error && (
             <div className="catalog-slider">

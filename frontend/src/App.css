@@ -15,6 +15,12 @@
   --shadow-color: rgba(0, 0, 0, 0.08); /* Softer shadow */
 
   --font-primary: 'Montserrat', sans-serif; /* Use imported font */
+
+  --spacing-xs: 8px;
+  --spacing-sm: 16px;
+  --spacing-md: 32px;
+  --radius: 8px;
+  --shadow-light: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
 /* ... existing styles ... */
 
@@ -39,64 +45,74 @@ body {
 }
 
 .App {
-  /* text-align: center; */ /* Remove center alignment if header/content handle their own */
-  min-height: 100vh; /* Use vh for viewport height */
-  display: flex;
-  flex-direction: column; /* Stack header and main content vertically */
-  text-align: center; /* Example existing style */
-
-  /* Make the container wider to compensate for scaling */
-  width: 111.11%; /* Approximately 100 / 0.9 */
-  /* Keep max-width if you had one, scaled appropriately */
-  /* max-width: calc(1400px / 0.9); */ /* Example if max-width was 1400px */
-
-  /* Apply scaling */
-  transform: scale(0.9);
-  transform-origin: top center; /* Scale from the top center */
-
-  /* Center the (now wider) container */
+  width: 100%;
+  max-width: 1440px; /* Bound content width */
   margin: 0 auto;
-
-  /* Keep other necessary styles */
-  background-color: var(--bg-color); /* Ensure App background covers the wider area */
-  overflow-x: hidden; /* Prevent horizontal scrollbar due to width > 100% */
+  padding: var(--spacing-md);
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background-color: var(--bg-color);
 }
 
+/* --- HEADER GRADIENT ANIMATION --- */
+/* @keyframes gradientShift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+} */
+
+/* --- SPINNER ANIMATION --- */
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* --- FULL-WIDTH HEADER & STYLING --- */
 .App-header {
-  background-color: var(--header-bg); /* Use variable */
-  padding: 15px 30px; /* Adjust padding */
-  color: var(--header-text);
-  /* margin-bottom: 30px; */ /* Remove bottom margin if flex handles spacing */
-  text-align: left; /* Align header text left */
-  flex-shrink: 0; /* Prevent header from shrinking */
+  background: #232946; /* Modern deep blue, override accent if needed */
+  padding: 0; /* Remove extra padding */
+  margin: 0;
+  min-height: 80px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 8px rgba(44,62,80,0.04);
+  border-bottom: 1px solid #e0e3e8;
 }
 
 .App-header h1 {
   margin: 0;
-  font-size: 1.8rem; /* Adjust size */
+  font-size: 2.2rem;
+  font-weight: 800;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: #fff;
+  text-align: center;
+  text-shadow: 0 2px 8px rgba(44,62,80,0.08);
 }
 
 /* Main Content Layout */
 .main-content {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 30px; /* Adjust gap */
-  padding: 30px 20px; /* Add top/bottom padding */
-  max-width: 1400px; /* Slightly increase max-width if desired */
-  margin: 0 auto;
-  flex-grow: 1; /* Allow main content to take remaining vertical space */
-  width: 100%; /* Ensure it takes full width */
-  box-sizing: border-box; /* Include padding in width calculation */
+  display: grid;
+  grid-template-columns: 1fr; /* Mobile: single column */
+  gap: var(--spacing-md);
+  flex: 1; /* Allow main-content to fill vertical space */
+  width: 100%;
+}
+
+@media (min-width: 768px) {
+  .main-content {
+    grid-template-columns: minmax(0, 350px) 1fr; /* Sidebar and main area */
+  }
 }
 
 /* Section Styling */
 .user-section,
 .catalog-section {
-  background-color: #ffffff; /* White background for sections */
-  padding: 25px;
-  border-radius: 8px;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  background-color: var(--card-bg); /* Use card background */
+  padding: var(--spacing-sm);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-light);
   text-align: left; /* Align text left within sections */
   flex: 1; /* Allow sections to grow */
   min-width: 300px; /* Minimum width before wrapping */
@@ -115,10 +131,10 @@ body {
 
 h2 {
   font-size: 1.8rem;
-  color: #282c34; /* Darker heading color */
+  color: var(--text-color); /* Use primary text color */
   margin-top: 0;
   margin-bottom: 20px;
-  border-bottom: 2px solid #eee; /* Subtle separator */
+  border-bottom: 2px solid var(--card-border); /* Use border color variable */
   padding-bottom: 10px;
 }
 
@@ -398,4 +414,33 @@ input[type="file"] {
   .catalog-list {
      grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); /* Adjust grid for smaller screens */
   }
+}
+
+/* --- LOADING SPINNER --- */
+.spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid var(--placeholder-bg);
+  border-top: 4px solid var(--accent-color);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin: var(--spacing-md) auto;
+}
+
+/* --- SECTION FADE-IN ANIMATION --- */
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Apply entrance animations to main content sections */
+.main-content > section {
+  opacity: 0;
+  animation: fadeInUp 0.8s ease-out forwards;
+}
+.main-content > section:nth-child(1) {
+  animation-delay: 0.2s;
+}
+.main-content > section:nth-child(2) {
+  animation-delay: 0.4s;
 }

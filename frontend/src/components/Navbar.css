@@ -1,8 +1,7 @@
 .brand-nav {
-  background-color: #f8f9fa; /* Light background for nav */
-  padding: 10px 0;
-  border-bottom: 1px solid #dee2e6;
-  margin-bottom: 20px; /* Space below nav */
+  background-color: var(--accent-color); /* Accent background */
+  padding: var(--spacing-xs) 0; /* Responsive vertical padding */
+  margin-bottom: var(--spacing-md);
   width: 100%;
   box-sizing: border-box;
 }
@@ -20,26 +19,20 @@
 
 .brand-nav button {
   background: none;
-  border: 1px solid #ced4da; /* Subtle border */
-  padding: 6px 12px;
+  border: none;
+  padding: var(--spacing-xs) var(--spacing-sm);
   cursor: pointer;
   font-size: 0.95rem;
-  color: #495057; /* Dark grey text */
-  border-radius: 4px;
-  transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
-  white-space: nowrap; /* Prevent button text wrapping */
+  color: var(--header-text); /* White text */
 }
 
 .brand-nav button:hover {
-  background-color: #e9ecef; /* Light grey hover */
-  border-color: #adb5bd;
+  background-color: rgba(255,255,255,0.2); /* Light hover overlay */
 }
 
 .brand-nav button.active {
-  background-color: var(--accent-color, #16213e); /* Use accent color */
-  color: var(--header-text, #ffffff); /* Use header text color */
-  border-color: var(--accent-color, #16213e);
-  font-weight: 600;
+  background-color: var(--header-text); /* White background */
+  color: var(--accent-color); /* Accent text */
 }
 
 .brand-nav .error-message {
