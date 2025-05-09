@@ -11,10 +11,14 @@ from sqlalchemy import distinct # Import distinct
 from PIL import Image # Import Pillow
 import requests       # To download image from URL
 import io             # To handle image data from requests
+from flask_admin import Admin
+from flask_admin.contrib.sqla import ModelView
 
 load_dotenv() # Load environment variables from .env
 
 app = Flask(__name__)
+# Secret key for session management (required by Flask-Admin)
+app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'dev-secret-key-change-me')
 CORS(app)
 
 # --- Logging Configuration ---
@@ -52,14 +56,13 @@ app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
 
 # Database Configuration
-db_url = os.getenv('DATABASE_URL')
-if not db_url:
-    raise ValueError("No DATABASE_URL set for Flask application")
-app.config['SQLALCHEMY_DATABASE_URI'] = db_url
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False # Disable modification tracking
-db = SQLAlchemy(app) # Initialize SQLAlchemy with the app
-# -----------------------------
+# Set up SQLite database path and URI
+db_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'database.sqlite')
+app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{db_path}'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+db = SQLAlchemy(app)
 
+# --- Flask-Admin Configuration ---
 # --- Database Models ---
 class ClothingItem(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -81,7 +84,12 @@ class ClothingItem(db.Model):
             "imageUrl": self.imageUrl,
             "brand": self.brand # Include brand in the JSON output
         }
-# ----------------------
+# -----------------------------
+
+# --- Flask-Admin Configuration ---
+admin = Admin(app, name='Virtual Try-On Admin', template_mode='bootstrap3')
+admin.add_view(ModelView(ClothingItem, db.session))
+# -----------------------------
 
 # --- Helper Function ---
 def allowed_file(filename):

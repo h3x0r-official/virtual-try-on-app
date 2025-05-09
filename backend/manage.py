@@ -1,5 +1,6 @@
 import click
 from app import app, db, ClothingItem # Import your Flask app, db instance, and models
+from init_db import init_db
 
 # Create a Click command group
 @click.group()
@@ -147,6 +148,21 @@ def update_item_command(item_id, name, price, image_url, brand):
             db.session.rollback()
             click.echo(f"Error updating item: {e}", err=True)
 
+@cli.command("seed-db")
+@click.option('--force', is_flag=True, help="Force reinitialization by dropping and recreating tables.")
+def seed_db_command(force):
+    """Seeds the database with sample data."""
+    with app.app_context():
+        if force:
+            db.drop_all()
+            click.echo("Dropped existing tables.")
+        db.create_all()
+        click.echo("Created tables.")
+        try:
+            init_db()
+            click.echo("Seeded database with sample data successfully.")
+        except Exception as e:
+            click.echo(f"Error seeding database: {e}", err=True)
 
 if __name__ == '__main__':
     cli()
