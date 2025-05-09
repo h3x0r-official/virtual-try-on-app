@@ -198,7 +198,7 @@ def upload_user_image():
 def process_tryon():
     """
     Processes a virtual try-on request using MediaPipe for pose detection and Pillow for compositing.
-    Expects JSON body with 'userImageFilename' and 'clothingItemId'.
+    Expects JSON body with 'userImageFilename' and either 'clothingImageUrl' (preferred) or 'clothingItemId'.
     Returns a result image URL.
     """
     if not request.is_json:
@@ -206,25 +206,35 @@ def process_tryon():
 
     data = request.get_json()
     user_image_filename = data.get('userImageFilename')
+    clothing_image_url = data.get('clothingImageUrl')
     clothing_item_id = data.get('clothingItemId')
 
-    if not user_image_filename or not clothing_item_id:
-        return jsonify({"error": "Missing 'userImageFilename' or 'clothingItemId' in request body"}), 400
+    if not user_image_filename or (not clothing_image_url and not clothing_item_id):
+        return jsonify({"error": "Missing 'userImageFilename' and either 'clothingImageUrl' or 'clothingItemId' in request body"}), 400
 
     try:
         user_image_path = os.path.join(app.config['UPLOAD_FOLDER'], secure_filename(user_image_filename))
         if not os.path.exists(user_image_path):
             return jsonify({"error": f"User image '{user_image_filename}' not found on server"}), 404
 
-        clothing_item = ClothingItem.query.get(clothing_item_id)
-        if not clothing_item or not clothing_item.imageUrl:
-            return jsonify({"error": f"Clothing item with ID {clothing_item_id} not found or missing imageUrl"}), 404
-
-        # Download clothing image
-        response = requests.get(clothing_item.imageUrl, stream=True, timeout=15)
-        response.raise_for_status()
-        clothing_img = Image.open(io.BytesIO(response.content)).convert("RGBA")
-        clothing_img = remove_background(clothing_img)  # Remove background using rembg
+        # --- Get clothing image ---
+        clothing_img = None
+        if clothing_image_url and clothing_image_url.startswith('/uploads/'):
+            # Use local file from uploads
+            clothing_path = os.path.join(app.config['UPLOAD_FOLDER'], os.path.basename(clothing_image_url))
+            if not os.path.exists(clothing_path):
+                return jsonify({"error": f"Clothing image '{clothing_image_url}' not found on server"}), 404
+            clothing_img = Image.open(clothing_path).convert("RGBA")
+        elif clothing_item_id:
+            clothing_item = ClothingItem.query.get(clothing_item_id)
+            if not clothing_item or not clothing_item.imageUrl:
+                return jsonify({"error": f"Clothing item with ID {clothing_item_id} not found or missing imageUrl"}), 404
+            response = requests.get(clothing_item.imageUrl, stream=True, timeout=15)
+            response.raise_for_status()
+            clothing_img = Image.open(io.BytesIO(response.content)).convert("RGBA")
+            clothing_img = remove_background(clothing_img)
+        else:
+            return jsonify({"error": "No valid clothing image source provided."}), 400
 
         # Load user image
         user_img = Image.open(user_image_path).convert("RGBA")
@@ -264,14 +274,14 @@ def process_tryon():
             result_img.paste(clothing_resized, (paste_x, paste_y), mask=clothing_resized)
 
         # Save result
-        result_filename = f"tryon_{os.path.splitext(user_image_filename)[0]}_{clothing_item_id}.png"
+        result_filename = f"tryon_{os.path.splitext(user_image_filename)[0]}_{os.path.basename(clothing_image_url) if clothing_image_url else clothing_item_id}.png"
         result_path = os.path.join(app.config['UPLOAD_FOLDER'], result_filename)
         result_img.save(result_path)
         result_url = f"/uploads/{result_filename}"
         return jsonify({
             "message": "Try-on generated successfully.",
             "resultImageUrl": result_url
-        }), 200
+            }), 200
 
     except Exception as e:
         print(f"Error during try-on processing: {e}")
@@ -293,9 +303,9 @@ def remove_bg_endpoint():
         img_no_bg = remove_background(img)
 
         # Save and return the new image URL
-        filename = f"nobg_{os.path.basename(image_url).split('?')[0]}"
+        filename = f"nobg_{os.path.splitext(os.path.basename(image_url).split('?')[0])[0]}.png"
         save_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-        img_no_bg.save(save_path)
+        img_no_bg.save(save_path, format="PNG")
         return jsonify({"resultImageUrl": f"/uploads/{filename}"})
     except Exception as e:
         return jsonify({"error": f"Failed to remove background: {str(e)}"}), 500
