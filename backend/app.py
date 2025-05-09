@@ -248,27 +248,36 @@ def process_tryon():
             if not results.pose_landmarks:
                 return jsonify({"error": "Could not detect pose landmarks in user image."}), 422
 
-            # Extract shoulder coordinates
+            # Extract key landmarks
             lm = results.pose_landmarks.landmark
             left_shoulder = lm[mp_pose.PoseLandmark.LEFT_SHOULDER]
             right_shoulder = lm[mp_pose.PoseLandmark.RIGHT_SHOULDER]
+            left_hip = lm[mp_pose.PoseLandmark.LEFT_HIP]
+            right_hip = lm[mp_pose.PoseLandmark.RIGHT_HIP]
             # Use image size to get pixel coordinates
             h, w, _ = user_img_rgb.shape
             x1, y1 = int(left_shoulder.x * w), int(left_shoulder.y * h)
             x2, y2 = int(right_shoulder.x * w), int(right_shoulder.y * h)
-            # Calculate center and width
-            center_x = (x1 + x2) // 2
-            top_y = min(y1, y2)
-            shoulder_width = abs(x2 - x1)
-            # Target width for clothing (scale factor, e.g., 1.2x shoulder width)
-            target_width = int(shoulder_width * 1.2)
-            # Resize clothing image
+            x3, y3 = int(left_hip.x * w), int(left_hip.y * h)
+            x4, y4 = int(right_hip.x * w), int(right_hip.y * h)
+            # Compute bounding box for torso
+            min_x = min(x1, x2, x3, x4)
+            max_x = max(x1, x2, x3, x4)
+            min_y = min(y1, y2)
+            max_y = max(y3, y4)
+            box_width = max_x - min_x
+            box_height = max_y - min_y
+            # Resize clothing image to fit the bounding box
             aspect = clothing_img.height / clothing_img.width
+            target_width = box_width
             target_height = int(target_width * aspect)
+            if target_height > box_height:
+                target_height = box_height
+                target_width = int(target_height / aspect)
             clothing_resized = clothing_img.resize((target_width, target_height), Image.LANCZOS)
-            # Calculate overlay position (centered at shoulders, slightly below)
-            paste_x = center_x - target_width // 2
-            paste_y = top_y
+            # Center clothing horizontally in the box, align top to min_y
+            paste_x = min_x + (box_width - target_width) // 2
+            paste_y = min_y
             # Composite
             result_img = user_img.copy()
             result_img.paste(clothing_resized, (paste_x, paste_y), mask=clothing_resized)
