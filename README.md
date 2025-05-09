@@ -8,7 +8,7 @@ A modern web app for virtual clothing try-on. Users upload their photo and previ
 
 - **User Image Upload:** Upload your photo for virtual try-on.
 - **Clothing Catalog:** Browse and filter by brand.
-- **Virtual Try-On (Simulated):** See a simulated preview of clothing on your photo.
+- **Virtual Try-On:** See a simulated preview of clothing on your photo.
 - **Modern UI:** Responsive, brand-inspired design with smooth animations.
 - **Admin Panel:** Web-based management of catalog via Flask-Admin.
 - **Database Management CLI:** `manage.py` for advanced DB operations.
