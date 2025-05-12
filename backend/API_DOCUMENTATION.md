@@ -192,7 +192,7 @@ The API is served from the root of the Flask application (e.g., `http://127.0.0.
 
 * **Endpoint:** `/api/live-tryon`
 * **Method:** `POST`
-* **Description:** Processes a webcam frame for real-time virtual try-on. This endpoint takes a frame captured from the user's webcam and a clothing item ID, applies pose detection to identify body landmarks, and overlays the clothing item onto the user's image.
+* **Description:** Processes a webcam frame for real-time virtual try-on. This endpoint takes a frame captured from the user's webcam and a clothing item ID, applies pose detection to identify body landmarks, and overlays the clothing item onto the user's image. The endpoint implements caching and rate limiting to improve performance during continuous usage.
 * **Request:**
   * **Content-Type:** `multipart/form-data`
   * **Body:**
@@ -204,7 +204,8 @@ The API is served from the root of the Flask application (e.g., `http://127.0.0.
         ```json
         {
           "message": "Live try-on processed successfully",
-          "resultImageUrl": "/uploads/live_tryon_1714563452.png"
+          "resultImageUrl": "/uploads/live_tryon_1714563452.png",
+          "processingTimeMs": 213
         }
         ```
 
@@ -229,11 +230,53 @@ The API is served from the root of the Flask application (e.g., `http://127.0.0.
         ```json
         { "error": "Could not detect pose landmarks in frame" }
         ```
+        
+        ```json
+        { "error": "Could not detect proper body pose in the frame" }
+        ```
+
+  * **Error (429 Too Many Requests):** If client is sending too many requests in a short time
+
+        ```json
+        { "error": "Too many requests. Please slow down." }
+        ```
 
   * **Error (500 Internal Server Error):** For unexpected errors during processing
 
         ```json
-        { "error": "An internal error occurred during live try-on processing: [error details]" }
+        { 
+          "error": "An internal error occurred during live try-on processing: [error details]",
+          "errorType": "ValueError"
+        }
+        ```
+
+  * **Error (502 Bad Gateway):** For network errors accessing clothing image
+
+        ```json
+        { "error": "Network error accessing clothing image" }
         ```
 
 **Note:** This endpoint processes frames on-demand and does not maintain state between requests. For smooth real-time experience, the client should limit requests to a reasonable frequency (2-3 frames per second) to avoid overwhelming the server.
+
+### 7. Clear Application Cache (Admin)
+
+* **Endpoint:** `/api/admin/clear-cache`
+* **Method:** `POST`
+* **Description:** Administrative endpoint to clear all in-memory caches used by the application. This includes the clothing image cache, rate limiting data, and result counters. In production, this endpoint should be secured with proper authentication.
+* **Security:** In non-debug mode, this endpoint can only be accessed from localhost.
+* **Request:** No body required
+* **Response:**
+  * **Success (200 OK):**
+
+        ```json
+        {
+          "message": "All caches cleared. Removed 15 clothing cache items.",
+          "success": true
+        }
+        ```
+
+  * **Error (403 Forbidden):** If accessed from a non-local address in production mode
+
+        ```json
+        { "error": "Unauthorized access" }
+        ```

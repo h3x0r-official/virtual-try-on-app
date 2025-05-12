@@ -2,6 +2,7 @@
 import os
 import logging # Import logging
 import time    # Import time module for timestamps
+import random  # For probabilistic cache cleaning
 from logging.handlers import RotatingFileHandler # For rotating logs
 from flask import Flask, jsonify, request, send_from_directory # Import request and send_from_directory
 from dotenv import load_dotenv
@@ -338,6 +339,29 @@ def process_live_tryon():
     Expects 'frame' (image file) and 'clothingItemId' in multipart/form-data.
     Returns a processed image with clothing overlaid.
     """
+    # Initialize time tracking for performance monitoring
+    start_time = time.time()
+    
+    # Rate limiting - check client IP and limit requests
+    # This is a simple implementation; in production, use Redis or a proper rate limiter
+    client_ip = request.remote_addr
+    current_time = time.time()
+    
+    # Simple in-memory rate limiting (not suitable for production with multiple workers)
+    if not hasattr(app, 'rate_limit_store'):
+        app.rate_limit_store = {}
+    
+    # If more than 5 requests in 2 seconds from same IP, throttle
+    if client_ip in app.rate_limit_store:
+        requests_history = [t for t in app.rate_limit_store[client_ip] if current_time - t < 2.0]
+        if len(requests_history) >= 5:
+            app.logger.warning(f"Rate limiting applied to {client_ip}")
+            return jsonify({"error": "Too many requests. Please slow down."}), 429
+        app.rate_limit_store[client_ip] = requests_history + [current_time]
+    else:
+        app.rate_limit_store[client_ip] = [current_time]
+    
+    # Input validation
     if 'frame' not in request.files:
         return jsonify({"error": "No frame part in the request"}), 400
 
@@ -350,105 +374,277 @@ def process_live_tryon():
     if frame_file.filename == '':
         return jsonify({"error": "No frame provided"}), 400
 
+    # Create a unique temporary filename with a timestamp
+    temp_frame_filename = None
+    temp_frame_path = None
+    
     try:
-        # Save the frame temporarily
-        temp_frame_filename = f"temp_frame_{int(time.time())}.jpg"
+        # Save the frame temporarily with a unique name to prevent conflicts
+        timestamp = int(time.time() * 1000)  # Milliseconds for better uniqueness
+        temp_frame_filename = f"temp_frame_{timestamp}_{os.urandom(4).hex()}.jpg"
         temp_frame_path = os.path.join(app.config['UPLOAD_FOLDER'], temp_frame_filename)
         frame_file.save(temp_frame_path)
+        
+        app.logger.debug(f"Frame saved to {temp_frame_path}")
         
         # Get clothing item
         clothing_item = ClothingItem.query.get(clothing_item_id)
         if not clothing_item or not clothing_item.imageUrl:
             os.remove(temp_frame_path)  # Clean up temp file
             return jsonify({"error": f"Clothing item with ID {clothing_item_id} not found or missing imageUrl"}), 404
+        
+        # Initialize clothing image cache if it doesn't exist
+        if not hasattr(app, 'clothing_cache'):
+            app.clothing_cache = {}
             
-        # Download and process clothing image
-        response = requests.get(clothing_item.imageUrl, stream=True, timeout=15)
-        response.raise_for_status()
-        clothing_img = Image.open(io.BytesIO(response.content)).convert("RGBA")
-        clothing_img = remove_background(clothing_img)
+        # Check if we've already processed this clothing image
+        cache_key = f"clothing_{clothing_item_id}"
+        if cache_key in app.clothing_cache:
+            clothing_img = app.clothing_cache[cache_key]
+            app.logger.debug(f"Using cached clothing image for item {clothing_item_id}")
+        else:
+            # Download and process clothing image
+            try:
+                response = requests.get(clothing_item.imageUrl, stream=True, timeout=10)
+                response.raise_for_status()
+                clothing_img = Image.open(io.BytesIO(response.content)).convert("RGBA")
+                
+                # Process and remove background
+                clothing_img = remove_background(clothing_img)
+                
+                # Cache the processed image for future frames
+                app.clothing_cache[cache_key] = clothing_img
+                app.logger.debug(f"Cached clothing image for item {clothing_item_id}")
+            except requests.exceptions.RequestException as req_err:
+                os.remove(temp_frame_path)  # Clean up temp file
+                app.logger.error(f"Failed to download clothing image: {req_err}")
+                return jsonify({"error": "Failed to download clothing image"}), 502
         
         # Process the webcam frame
-        user_img = Image.open(temp_frame_path).convert("RGBA")
-        user_img_np = np.array(user_img)
-        user_img_rgb = cv2.cvtColor(user_img_np, cv2.COLOR_RGBA2RGB)
-        
-        # MediaPipe pose detection
-        mp_pose = mp.solutions.pose
-        with mp_pose.Pose(static_image_mode=True, model_complexity=1, enable_segmentation=False) as pose:
-            results = pose.process(user_img_rgb)
+        try:
+            # Use OpenCV for faster image processing
+            user_img_cv = cv2.imread(temp_frame_path)
+            if user_img_cv is None:
+                raise ValueError("Failed to read image file")
             
-            if not results.pose_landmarks:
-                os.remove(temp_frame_path)  # Clean up temp file
-                return jsonify({"error": "Could not detect pose landmarks in frame"}), 422
+            # Convert to RGB for MediaPipe
+            user_img_rgb = cv2.cvtColor(user_img_cv, cv2.COLOR_BGR2RGB)
             
-            # Extract key landmarks (same as regular try-on)
-            lm = results.pose_landmarks.landmark
-            left_shoulder = lm[mp_pose.PoseLandmark.LEFT_SHOULDER]
-            right_shoulder = lm[mp_pose.PoseLandmark.RIGHT_SHOULDER]
-            left_hip = lm[mp_pose.PoseLandmark.LEFT_HIP]
-            right_hip = lm[mp_pose.PoseLandmark.RIGHT_HIP]
+            # For PIL operations later, also load with PIL
+            user_img = Image.open(temp_frame_path).convert("RGBA")
             
-            # Calculate positioning
-            h, w, _ = user_img_rgb.shape
-            x1, y1 = int(left_shoulder.x * w), int(left_shoulder.y * h)
-            x2, y2 = int(right_shoulder.x * w), int(right_shoulder.y * h)
-            x3, y3 = int(left_hip.x * w), int(left_hip.y * h)
-            x4, y4 = int(right_hip.x * w), int(right_hip.y * h)
+            # Get image dimensions
+            h, w = user_img_rgb.shape[:2]
             
-            # Compute bounding box for torso
-            min_x = min(x1, x2, x3, x4)
-            max_x = max(x1, x2, x3, x4)
-            min_y = min(y1, y2)
-            max_y = max(y3, y4)
-            box_width = max_x - min_x
-            box_height = max_y - min_y
+            # Detect pose landmarks
+            mp_pose = mp.solutions.pose
+            # Use lower model complexity for speed in live mode
+            pose_config = {
+                'static_image_mode': False,  # Switch to video mode for better tracking
+                'model_complexity': 0,       # Use lightweight model (0, 1, or 2)
+                'smooth_landmarks': True,    # Temporal smoothing for better stability
+                'min_detection_confidence': 0.5,
+                'min_tracking_confidence': 0.5
+            }
             
-            # Resize clothing image to fit the bounding box
-            aspect = clothing_img.height / clothing_img.width
-            target_width = box_width
-            target_height = int(target_width * aspect)
-            if target_height > box_height:
-                target_height = box_height
-                target_width = int(target_height / aspect)
+            with mp_pose.Pose(**pose_config) as pose:
+                # Process frame
+                start_pose_detection = time.time()
+                results = pose.process(user_img_rgb)
+                pose_detection_time = time.time() - start_pose_detection
+                app.logger.debug(f"Pose detection completed in {pose_detection_time:.3f}s")
                 
-            clothing_resized = clothing_img.resize((target_width, target_height), Image.LANCZOS)
-            
-            # Center clothing horizontally in the box, align top to min_y
-            paste_x = min_x + (box_width - target_width) // 2
-            paste_y = min_y
-            
-            # Composite
-            result_img = user_img.copy()
-            result_img.paste(clothing_resized, (paste_x, paste_y), mask=clothing_resized)
+                if not results.pose_landmarks:
+                    os.remove(temp_frame_path)  # Clean up temp file
+                    return jsonify({"error": "Could not detect pose landmarks in frame"}), 422
+                
+                # Extract key landmarks for torso
+                lm = results.pose_landmarks.landmark
+                left_shoulder = lm[mp_pose.PoseLandmark.LEFT_SHOULDER]
+                right_shoulder = lm[mp_pose.PoseLandmark.RIGHT_SHOULDER]
+                left_hip = lm[mp_pose.PoseLandmark.LEFT_HIP]
+                right_hip = lm[mp_pose.PoseLandmark.RIGHT_HIP]
+                
+                # Calculate positioning
+                x1, y1 = int(left_shoulder.x * w), int(left_shoulder.y * h)
+                x2, y2 = int(right_shoulder.x * w), int(right_shoulder.y * h)
+                x3, y3 = int(left_hip.x * w), int(left_hip.y * h)
+                x4, y4 = int(right_hip.x * w), int(right_hip.y * h)
+                
+                # Compute bounding box for torso with padding
+                min_x = max(0, min(x1, x2) - int(w * 0.02))      # Add 2% width as padding
+                max_x = min(w, max(x1, x2, x3, x4) + int(w * 0.02))
+                min_y = max(0, min(y1, y2) - int(h * 0.02))      # Add 2% height as padding
+                max_y = min(h, max(y3, y4) + int(h * 0.02))
+                
+                box_width = max_x - min_x
+                box_height = max_y - min_y
+                
+                # If torso detection looks unreasonable, use fallback dimensions
+                if box_width < 20 or box_height < 50 or box_width / box_height > 2.5:
+                    app.logger.warning("Unusual torso dimensions detected, using fallback values")
+                    # Fallback to center with reasonable dimensions
+                    min_x = w // 4
+                    max_x = min_x + w // 2
+                    min_y = h // 4
+                    max_y = min_y + h // 2
+                    box_width = max_x - min_x
+                    box_height = max_y - min_y
+                
+                # Resize clothing image efficiently 
+                aspect = clothing_img.height / clothing_img.width
+                target_width = box_width
+                target_height = int(target_width * aspect)
+                
+                # Ensure clothing fits in the detection box
+                if target_height > box_height:
+                    target_height = box_height
+                    target_width = int(target_height / aspect)
+                
+                # Use BILINEAR for better performance (LANCZOS is higher quality but slower)
+                clothing_resized = clothing_img.resize((target_width, target_height), Image.BILINEAR)
+                
+                # Center clothing horizontally in box, align top with shoulders
+                paste_x = min_x + (box_width - target_width) // 2
+                paste_y = min_y
+                
+                # Composite images
+                result_img = user_img.copy()
+                result_img.paste(clothing_resized, (paste_x, paste_y), mask=clothing_resized)
+                
+                # Track how many live results we've generated and manage them
+                if not hasattr(app, 'live_results_count'):
+                    app.live_results_count = 0
+                
+                # Generate result filename
+                result_filename = f"live_tryon_{int(time.time())}_{os.urandom(3).hex()}.png"
+                result_path = os.path.join(app.config['UPLOAD_FOLDER'], result_filename)
+                
+                # Save as JPEG for smaller file size (unless transparency needed)
+                result_img.save(result_path, format="PNG", optimize=True)
+                
+                # Increment counter and clean old results if too many
+                app.live_results_count += 1
+                if app.live_results_count > 100:  # Keep only the latest 100 results
+                    app.logger.info("Cleaning up old live try-on results")
+                    try:
+                        # Find and remove old live try-on files
+                        upload_dir = app.config['UPLOAD_FOLDER']
+                        live_tryon_files = sorted([f for f in os.listdir(upload_dir) 
+                                                  if f.startswith('live_tryon_')])
+                        # Delete oldest files except the most recent 50
+                        for old_file in live_tryon_files[:-50]:
+                            os.remove(os.path.join(upload_dir, old_file))
+                        app.live_results_count = 50  # Reset counter
+                    except Exception as cleanup_err:
+                        app.logger.error(f"Error cleaning up old files: {cleanup_err}")
+                
+                # Clean up the temporary frame
+                try:
+                    os.remove(temp_frame_path)
+                except Exception as rm_err:
+                    app.logger.warning(f"Failed to remove temp file {temp_frame_path}: {rm_err}")
+                
+                # Return the result URL
+                result_url = f"/uploads/{result_filename}"
+                
+                # Log performance metrics
+                total_time = time.time() - start_time
+                app.logger.info(f"Live try-on completed in {total_time:.3f}s")
         
-        # Save result
-        result_filename = f"live_tryon_{int(time.time())}.png"
-        result_path = os.path.join(app.config['UPLOAD_FOLDER'], result_filename)
-        result_img.save(result_path)
-        
-        # Clean up temporary frame
-        os.remove(temp_frame_path)
-        
-        # Return the result URL
-        result_url = f"/uploads/{result_filename}"
+        except Exception as processing_err:
+            app.logger.exception(f"Error processing frame: {processing_err}")
+            if temp_frame_path and os.path.exists(temp_frame_path):
+                os.remove(temp_frame_path)
+            return jsonify({"error": f"Error processing frame: {str(processing_err)}"}), 500
+        # Include performance info and result URL in response
         return jsonify({
             "message": "Live try-on processed successfully",
-            "resultImageUrl": result_url
+            "resultImageUrl": result_url,
+            "processingTimeMs": int((time.time() - start_time) * 1000)
         }), 200
         
     except Exception as e:
         app.logger.exception(f"Error during live try-on processing: {e}")
+        
         # Clean up temporary files if they exist
-        if 'temp_frame_path' in locals() and os.path.exists(temp_frame_path):
-            os.remove(temp_frame_path)
-        return jsonify({"error": f"An internal error occurred during live try-on processing: {str(e)}"}), 500
+        if temp_frame_path and os.path.exists(temp_frame_path):
+            try:
+                os.remove(temp_frame_path)
+            except Exception as rm_err:
+                app.logger.error(f"Failed to remove temp file during error handling: {rm_err}")
+        
+        # Provide appropriate error message based on exception type
+        if isinstance(e, (requests.exceptions.RequestException, requests.exceptions.Timeout)):
+            return jsonify({"error": "Network error accessing clothing image"}), 502
+        elif isinstance(e, (OSError, IOError)):
+            return jsonify({"error": "File system error processing images"}), 500
+        elif isinstance(e, ValueError) and "landmarks" in str(e).lower():
+            return jsonify({"error": "Could not detect proper body pose in the frame"}), 422
+        else:
+            return jsonify({
+                "error": f"An internal error occurred during live try-on processing: {str(e)}",
+                "errorType": e.__class__.__name__
+            }), 500
 # -------------------------
+
+# Utility function to clear old cache entries
+def clear_old_cache(max_items=50):
+    """Clear old entries from our in-memory caches to prevent memory bloat"""
+    if hasattr(app, 'clothing_cache') and len(app.clothing_cache) > max_items:
+        app.logger.info(f"Cleaning clothing cache ({len(app.clothing_cache)} items)")
+        # Convert to list to avoid mutation during iteration
+        items = list(app.clothing_cache.items())
+        # Remove oldest items, keeping the newest max_items
+        for key, _ in items[:-max_items]:
+            app.clothing_cache.pop(key, None)
+            
+    if hasattr(app, 'rate_limit_store'):
+        # Clear old rate limit entries (older than 1 hour)
+        current_time = time.time()
+        cleaned_store = {}
+        for ip, timestamps in app.rate_limit_store.items():
+            # Keep only timestamps within the last hour
+            recent_timestamps = [t for t in timestamps if current_time - t < 3600]
+            if recent_timestamps:  # If any timestamps remain
+                cleaned_store[ip] = recent_timestamps
+        app.rate_limit_store = cleaned_store
 
 # Serve uploaded files
 @app.route('/uploads/<filename>')
 def uploaded_file(filename):
+    # Occasionally clean caches when serving files
+    if random.random() < 0.05:  # 5% chance to run cleanup
+        clear_old_cache()
     return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
+
+# Cache management endpoint (admin only)
+@app.route('/api/admin/clear-cache', methods=['POST'])
+def clear_cache():
+    # In production, add authentication check here
+    if not app.debug:
+        # Simple security check - only allow from localhost in production
+        if request.remote_addr not in ('127.0.0.1', 'localhost'):
+            return jsonify({"error": "Unauthorized access"}), 403
+    
+    # Clear all caches
+    if hasattr(app, 'clothing_cache'):
+        cache_size = len(app.clothing_cache)
+        app.clothing_cache.clear()
+    else:
+        cache_size = 0
+        app.clothing_cache = {}
+        
+    if hasattr(app, 'rate_limit_store'):
+        app.rate_limit_store.clear()
+        
+    if hasattr(app, 'live_results_count'):
+        app.live_results_count = 0
+        
+    return jsonify({
+        "message": f"All caches cleared. Removed {cache_size} clothing cache items.",
+        "success": True
+    })
 
 # Add other routes later...
 
