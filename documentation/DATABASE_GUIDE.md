@@ -1,6 +1,7 @@
 # Database Integration Guide for Virtual Try-On Application
 
 ## Table of Contents
+
 1. [Database Setup](#database-setup)
 2. [Database Schema](#database-schema)
 3. [Environment Configuration](#environment-configuration)
@@ -11,6 +12,7 @@
 ## Database Setup
 
 ### Prerequisites
+
 - PostgreSQL 12 or higher
 - Python 3.8 or higher
 - psycopg2-binary package
@@ -18,6 +20,7 @@
 ### Installation Steps
 
 1. Install PostgreSQL:
+
 ```bash
 # For Ubuntu/Debian
 sudo apt-get update
@@ -27,7 +30,8 @@ sudo apt-get install postgresql postgresql-contrib
 sudo dnf install postgresql postgresql-server
 ```
 
-2. Start PostgreSQL service:
+2.Start PostgreSQL service:
+
 ```bash
 # For Ubuntu/Debian
 sudo service postgresql start
@@ -36,7 +40,8 @@ sudo service postgresql start
 sudo systemctl start postgresql
 ```
 
-3. Create Database and User:
+3.Create Database and User:
+
 ```bash
 # Access PostgreSQL as postgres user
 sudo -u postgres psql
@@ -53,6 +58,7 @@ GRANT ALL PRIVILEGES ON DATABASE tryon_db TO vapp;
 The application uses the following database schema:
 
 ### Users Table
+
 ```sql
 CREATE TABLE users (
     id SERIAL PRIMARY KEY,
@@ -64,6 +70,7 @@ CREATE TABLE users (
 ```
 
 ### Catalog Items Table
+
 ```sql
 CREATE TABLE catalog_items (
     id SERIAL PRIMARY KEY,
@@ -76,6 +83,7 @@ CREATE TABLE catalog_items (
 ```
 
 ### Try-On Sessions Table
+
 ```sql
 CREATE TABLE tryon_sessions (
     id SERIAL PRIMARY KEY,
@@ -124,12 +132,14 @@ migrate = Migrate(app, db)
 ## API Endpoints
 
 ### Catalog Management
+
 - `GET /api/catalog` - Get all catalog items
 - `GET /api/catalog?brand=<brand_name>` - Get items by brand
 - `POST /api/catalog` - Add new catalog item
 - `GET /api/brands` - Get all available brands
 
 ### Try-On Operations
+
 - `POST /api/upload` - Upload user image
 - `POST /api/tryon` - Generate try-on result
 - `GET /api/tryon/<session_id>` - Get try-on session status
@@ -145,6 +155,7 @@ migrate = Migrate(app, db)
 
 2. **Permission Denied**
    - Verify user permissions:
+
    ```sql
    GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO vapp;
    GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA public TO vapp;
@@ -152,6 +163,7 @@ migrate = Migrate(app, db)
 
 3. **Table Creation Issues**
    - Run database migrations:
+
    ```bash
    cd backend
    source venv/bin/activate
@@ -166,16 +178,19 @@ migrate = Migrate(app, db)
 ### Database Maintenance
 
 1. **Backup Database**
+
 ```bash
 pg_dump -U vapp tryon_db > backup.sql
 ```
 
-2. **Restore Database**
+2.**Restore Database**
+
 ```bash
 psql -U vapp tryon_db < backup.sql
 ```
 
-3. **Reset Database**
+3.**Reset Database**
+
 ```bash
 dropdb -U vapp tryon_db
 createdb -U vapp tryon_db
@@ -232,6 +247,6 @@ python manage.py create-tables
 
 ## Support and Resources
 
-- PostgreSQL Documentation: https://www.postgresql.org/docs/
-- SQLAlchemy Documentation: https://docs.sqlalchemy.org/
-- Flask-SQLAlchemy Documentation: https://flask-sqlalchemy.palletsprojects.com/ 
+- PostgreSQL Documentation: <https://www.postgresql.org/docs/>
+- SQLAlchemy Documentation: <https://docs.sqlalchemy.org/>
+- Flask-SQLAlchemy Documentation: <https://flask-sqlalchemy.palletsprojects.com/>
