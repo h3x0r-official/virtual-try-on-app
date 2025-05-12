@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import Navbar from './components/Navbar'; // Import the Navbar component
 import CatalogItemCard from './components/CatalogItemCard'; // Import the new component
+import LiveTryOn from './components/LiveTryOn'; // Import the LiveTryOn component
 import './App.css';
 
 // Define constant for the "All Brands" option, matching Navbar.jsx
@@ -25,6 +26,9 @@ function App() {
   const [tryOnResultUrl, setTryOnResultUrl] = useState(null); // Store the result image URL
   const [isGeneratingTryOn, setIsGeneratingTryOn] = useState(false); // Loading state for try-on API call
   const [tryOnError, setTryOnError] = useState(null); // Error state for try-on API call
+  
+  // Tab state - 'photo' for photo upload try-on, 'live' for webcam
+  const [activeTab, setActiveTab] = useState('photo'); // Default to photo upload tab
 
   // Effect to fetch catalog based on the selected brand
   useEffect(() => {
@@ -225,80 +229,106 @@ function App() {
 
       {/* Main content area */}
       <div className="main-content">
-        {/* Left Column: Upload and Preview */}
+        {/* Left Column: Try-on options with tabs */}
         <section className="user-section">
-          <h2>Your Photo & Try-On</h2> {/* Updated Title */}
-          <div className="upload-controls">
-            <label htmlFor="file-upload" className="custom-file-upload">
-              Browse...
-            </label>
-            <input
-              id="file-upload"
-              type="file"
-              accept="image/*" // Only allow image files
-              onChange={handleFileChange}
-              disabled={isUploading || isGeneratingTryOn} // Disable input during upload
-            />
-            {selectedFile && <span className="file-name">{selectedFile.name}</span>}
-          </div>
-          {previewUrl && (
-            <div className="image-preview">
-              {/* Removed <h3>Preview:</h3> for cleaner look */}
-              <img src={previewUrl} alt="Selected preview" />
-            </div>
-          )}
-
-          {/* Upload Button - appears only when a file is selected */}
-          {selectedFile && !uploadedFilename && ( // Show only if file selected but not yet successfully uploaded
-            <button
-              onClick={handleImageUpload}
-              className="upload-button"
-              disabled={isUploading} // Disable button while uploading
-              style={{ marginTop: '15px' }}
+          {/* Tab Navigation */}
+          <div className="tab-navigation">
+            <button 
+              className={`tab-button ${activeTab === 'photo' ? 'active' : ''}`}
+              onClick={() => setActiveTab('photo')}
             >
-              {isUploading ? 'Uploading...' : 'Upload Image'}
+              Photo Upload
             </button>
-          )}
+            <button 
+              className={`tab-button ${activeTab === 'live' ? 'active' : ''}`}
+              onClick={() => setActiveTab('live')}
+            >
+              Live Webcam
+            </button>
+          </div>
+          
+          {/* Photo Upload Tab Content */}
+          {activeTab === 'photo' && (
+            <div className="tab-content">
+              <h2>Your Photo & Try-On</h2>
+              <div className="upload-controls">
+                <label htmlFor="file-upload" className="custom-file-upload">
+                  Browse...
+                </label>
+                <input
+                  id="file-upload"
+                  type="file"
+                  accept="image/*" // Only allow image files
+                  onChange={handleFileChange}
+                  disabled={isUploading || isGeneratingTryOn} // Disable input during upload
+                />
+                {selectedFile && <span className="file-name">{selectedFile.name}</span>}
+              </div>
+              {previewUrl && (
+                <div className="image-preview">
+                  <img src={previewUrl} alt="Selected preview" />
+                </div>
+              )}
 
-          {/* Upload Status Message */}
-          {uploadStatus && (
-            <p className="upload-status" style={{ marginTop: '10px' }}>
-              {uploadStatus}
-            </p>
-          )}
+              {/* Upload Button - appears only when a file is selected */}
+              {selectedFile && !uploadedFilename && ( // Show only if file selected but not yet successfully uploaded
+                <button
+                  onClick={handleImageUpload}
+                  className="upload-button"
+                  disabled={isUploading} // Disable button while uploading
+                  style={{ marginTop: '15px' }}
+                >
+                  {isUploading ? 'Uploading...' : 'Upload Image'}
+                </button>
+              )}
 
-          {/* Display which item is selected for try-on (optional feedback) */}
-          {selectedTryOnItem && (
-            <p className="try-on-selection-info">
-              Selected: <strong>{selectedTryOnItem.name}</strong>
-            </p>
-          )}
+              {/* Upload Status Message */}
+              {uploadStatus && (
+                <p className="upload-status" style={{ marginTop: '10px' }}>
+                  {uploadStatus}
+                </p>
+              )}
 
-          {/* Generate Try-On Button */}
-          <button
-            onClick={handleGenerateTryOn}
-            className="generate-tryon-button" // New class for styling
-            disabled={!uploadedFilename || !selectedTryOnItem || isGeneratingTryOn || isUploading}
-          >
-            {isGeneratingTryOn ? 'Generating...' : 'Generate Try-On'}
-          </button>
+              {/* Display which item is selected for try-on (optional feedback) */}
+              {selectedTryOnItem && (
+                <p className="try-on-selection-info">
+                  Selected: <strong>{selectedTryOnItem.name}</strong>
+                </p>
+              )}
 
-          {/* Try-On Error Message & Spinner */}
-          {tryOnError && <p className="error-message tryon-error">{tryOnError}</p>}
+              {/* Generate Try-On Button */}
+              <button
+                onClick={handleGenerateTryOn}
+                className="generate-tryon-button" // New class for styling
+                disabled={!uploadedFilename || !selectedTryOnItem || isGeneratingTryOn || isUploading}
+              >
+                {isGeneratingTryOn ? 'Generating...' : 'Generate Try-On'}
+              </button>
 
-          {isGeneratingTryOn && <div className="spinner"></div>}
+              {/* Try-On Error Message & Spinner */}
+              {tryOnError && <p className="error-message tryon-error">{tryOnError}</p>}
 
-          {/* Try-On Result Display */}
-          {isGeneratingTryOn && !tryOnError && tryOnResultUrl === null && uploadedFilename && selectedTryOnItem && (
-            <p className="tryon-result-info">Try-on generated, but no result image available (item might be missing image).</p>
-          )}
-          {tryOnResultUrl && (
-            <div className="tryon-result">
-              <h3>Try-On Result</h3>
-              <img src={tryOnResultUrl.startsWith('/uploads/') ? BACKEND_URL + tryOnResultUrl : tryOnResultUrl} alt="Try-on result" />
+              {isGeneratingTryOn && <div className="spinner"></div>}
+
+              {/* Try-On Result Display */}
+              {isGeneratingTryOn && !tryOnError && tryOnResultUrl === null && uploadedFilename && selectedTryOnItem && (
+                <p className="tryon-result-info">Try-on generated, but no result image available (item might be missing image).</p>
+              )}
+              {tryOnResultUrl && (
+                <div className="tryon-result">
+                  <h3>Try-On Result</h3>
+                  <img src={tryOnResultUrl.startsWith('/uploads/') ? BACKEND_URL + tryOnResultUrl : tryOnResultUrl} alt="Try-on result" />
+                </div>
+              )}
             </div>
           )}
-
+          
+          {/* Live Webcam Tab Content */}
+          {activeTab === 'live' && (
+            <div className="tab-content">
+              <LiveTryOn catalog={catalog} selectedTryOnItem={selectedTryOnItem} />
+            </div>
+          )}
         </section>
 
         {/* Right Column: Catalog Slider */}

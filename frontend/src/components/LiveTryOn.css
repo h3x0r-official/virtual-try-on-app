@@ -1,0 +1,155 @@
+.live-tryon-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px;
+  width: 100%;
+}
+
+.consent-prompt {
+  max-width: 600px;
+  padding: 20px;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  text-align: center;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  margin: 20px auto;
+}
+
+.consent-button {
+  background-color: var(--accent-color, #16213e);
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 10px 20px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  margin-top: 20px;
+}
+
+.consent-button:hover {
+  background-color: #0e1525;
+}
+
+.webcam-container {
+  width: 100%;
+  max-width: 640px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.video-display {
+  width: 100%;
+  position: relative;
+  border-radius: 8px;
+  overflow: hidden;
+  background-color: #ddd;
+  margin-bottom: 15px;
+}
+
+.video-canvas {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-height: 480px;
+  object-fit: contain;
+  background-color: #000;
+}
+
+.webcam-controls {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  padding: 10px;
+  gap: 15px;
+  flex-wrap: wrap;
+}
+
+.webcam-controls button {
+  padding: 8px 16px;
+  background-color: var(--accent-color, #16213e);
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.webcam-controls button:hover:not([disabled]) {
+  background-color: #0e1525;
+}
+
+.webcam-controls button[disabled] {
+  background-color: #6c757d;
+  cursor: not-allowed;
+}
+
+.status-text {
+  margin: 0;
+  font-style: italic;
+}
+
+.error-message {
+  color: #dc3545;
+  text-align: center;
+  margin: 10px 0;
+  padding: 10px;
+  background-color: rgba(220, 53, 69, 0.1);
+  border-radius: 4px;
+  width: 100%;
+}
+
+.instruction-message {
+  text-align: center;
+  margin: 10px 0;
+  padding: 15px;
+  background-color: #e9ecef;
+  border-radius: 4px;
+  width: 100%;
+}
+
+.privacy-note {
+  margin-top: 30px;
+  font-size: 0.85rem;
+  color: #6c757d;
+  text-align: center;
+  padding: 10px;
+  border-top: 1px solid #dee2e6;
+  width: 100%;
+  max-width: 640px;
+}
+
+/* Debug info styling */
+.debug-info {
+  position: absolute;
+  top: 5px;
+  left: 5px;
+  background-color: rgba(0, 0, 0, 0.7);
+  color: #fff;
+  padding: 10px;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  z-index: 100;
+  text-align: left;
+}
+
+.debug-info p {
+  margin: 3px 0;
+  line-height: 1.2;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .webcam-controls {
+    flex-direction: column;
+    gap: 10px;
+  }
+  
+  .consent-prompt {
+    padding: 15px;
+  }
+}

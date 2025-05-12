@@ -1,6 +1,7 @@
 # backend/app.py
 import os
 import logging # Import logging
+import time    # Import time module for timestamps
 from logging.handlers import RotatingFileHandler # For rotating logs
 from flask import Flask, jsonify, request, send_from_directory # Import request and send_from_directory
 from dotenv import load_dotenv
@@ -150,7 +151,7 @@ def get_catalog():
         query = ClothingItem.query
 
         # Apply filter if brand_filter exists
-        if brand_filter:
+        if (brand_filter):
             query = query.filter_by(brand=brand_filter)
             app.logger.info(f"Filtering catalog for brand: {brand_filter}") # Use logger
 
@@ -328,6 +329,121 @@ def remove_bg_endpoint():
 # >>> db.create_all()
 # >>> exit()
 # -----------------------------------------------------------------
+
+# --- NEW LIVE TRY-ON ENDPOINT ---
+@app.route('/api/live-tryon', methods=['POST'])
+def process_live_tryon():
+    """
+    Processes a live webcam frame for virtual try-on.
+    Expects 'frame' (image file) and 'clothingItemId' in multipart/form-data.
+    Returns a processed image with clothing overlaid.
+    """
+    if 'frame' not in request.files:
+        return jsonify({"error": "No frame part in the request"}), 400
+
+    frame_file = request.files['frame']
+    clothing_item_id = request.form.get('clothingItemId')
+
+    if not clothing_item_id:
+        return jsonify({"error": "Missing clothingItemId parameter"}), 400
+
+    if frame_file.filename == '':
+        return jsonify({"error": "No frame provided"}), 400
+
+    try:
+        # Save the frame temporarily
+        temp_frame_filename = f"temp_frame_{int(time.time())}.jpg"
+        temp_frame_path = os.path.join(app.config['UPLOAD_FOLDER'], temp_frame_filename)
+        frame_file.save(temp_frame_path)
+        
+        # Get clothing item
+        clothing_item = ClothingItem.query.get(clothing_item_id)
+        if not clothing_item or not clothing_item.imageUrl:
+            os.remove(temp_frame_path)  # Clean up temp file
+            return jsonify({"error": f"Clothing item with ID {clothing_item_id} not found or missing imageUrl"}), 404
+            
+        # Download and process clothing image
+        response = requests.get(clothing_item.imageUrl, stream=True, timeout=15)
+        response.raise_for_status()
+        clothing_img = Image.open(io.BytesIO(response.content)).convert("RGBA")
+        clothing_img = remove_background(clothing_img)
+        
+        # Process the webcam frame
+        user_img = Image.open(temp_frame_path).convert("RGBA")
+        user_img_np = np.array(user_img)
+        user_img_rgb = cv2.cvtColor(user_img_np, cv2.COLOR_RGBA2RGB)
+        
+        # MediaPipe pose detection
+        mp_pose = mp.solutions.pose
+        with mp_pose.Pose(static_image_mode=True, model_complexity=1, enable_segmentation=False) as pose:
+            results = pose.process(user_img_rgb)
+            
+            if not results.pose_landmarks:
+                os.remove(temp_frame_path)  # Clean up temp file
+                return jsonify({"error": "Could not detect pose landmarks in frame"}), 422
+            
+            # Extract key landmarks (same as regular try-on)
+            lm = results.pose_landmarks.landmark
+            left_shoulder = lm[mp_pose.PoseLandmark.LEFT_SHOULDER]
+            right_shoulder = lm[mp_pose.PoseLandmark.RIGHT_SHOULDER]
+            left_hip = lm[mp_pose.PoseLandmark.LEFT_HIP]
+            right_hip = lm[mp_pose.PoseLandmark.RIGHT_HIP]
+            
+            # Calculate positioning
+            h, w, _ = user_img_rgb.shape
+            x1, y1 = int(left_shoulder.x * w), int(left_shoulder.y * h)
+            x2, y2 = int(right_shoulder.x * w), int(right_shoulder.y * h)
+            x3, y3 = int(left_hip.x * w), int(left_hip.y * h)
+            x4, y4 = int(right_hip.x * w), int(right_hip.y * h)
+            
+            # Compute bounding box for torso
+            min_x = min(x1, x2, x3, x4)
+            max_x = max(x1, x2, x3, x4)
+            min_y = min(y1, y2)
+            max_y = max(y3, y4)
+            box_width = max_x - min_x
+            box_height = max_y - min_y
+            
+            # Resize clothing image to fit the bounding box
+            aspect = clothing_img.height / clothing_img.width
+            target_width = box_width
+            target_height = int(target_width * aspect)
+            if target_height > box_height:
+                target_height = box_height
+                target_width = int(target_height / aspect)
+                
+            clothing_resized = clothing_img.resize((target_width, target_height), Image.LANCZOS)
+            
+            # Center clothing horizontally in the box, align top to min_y
+            paste_x = min_x + (box_width - target_width) // 2
+            paste_y = min_y
+            
+            # Composite
+            result_img = user_img.copy()
+            result_img.paste(clothing_resized, (paste_x, paste_y), mask=clothing_resized)
+        
+        # Save result
+        result_filename = f"live_tryon_{int(time.time())}.png"
+        result_path = os.path.join(app.config['UPLOAD_FOLDER'], result_filename)
+        result_img.save(result_path)
+        
+        # Clean up temporary frame
+        os.remove(temp_frame_path)
+        
+        # Return the result URL
+        result_url = f"/uploads/{result_filename}"
+        return jsonify({
+            "message": "Live try-on processed successfully",
+            "resultImageUrl": result_url
+        }), 200
+        
+    except Exception as e:
+        app.logger.exception(f"Error during live try-on processing: {e}")
+        # Clean up temporary files if they exist
+        if 'temp_frame_path' in locals() and os.path.exists(temp_frame_path):
+            os.remove(temp_frame_path)
+        return jsonify({"error": f"An internal error occurred during live try-on processing: {str(e)}"}), 500
+# -------------------------
 
 # Serve uploaded files
 @app.route('/uploads/<filename>')

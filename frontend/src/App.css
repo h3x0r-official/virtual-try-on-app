@@ -13,6 +13,8 @@
   --placeholder-text: #adb5bd;
   --accent-color: #16213e; /* Dark blue accent */
   --shadow-color: rgba(0, 0, 0, 0.08); /* Softer shadow */
+  --tab-inactive: #e9ecef; /* Inactive tab color */
+  --tab-hover: #dee2e6; /* Tab hover color */
 
   --font-primary: 'Montserrat', sans-serif; /* Use imported font */
 
@@ -226,6 +228,46 @@ input[type="file"] {
 }
 .catalog-slider::-webkit-scrollbar-thumb:hover {
   background: #aaa; /* Thumb color on hover */
+}
+
+/* Tab Navigation Styling */
+.tab-navigation {
+  display: flex;
+  width: 100%;
+  border-bottom: 2px solid var(--card-border);
+  margin-bottom: 20px;
+}
+
+.tab-button {
+  padding: 12px 20px;
+  background-color: var(--tab-inactive);
+  border: none;
+  border-radius: 6px 6px 0 0;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 0.95rem;
+  transition: background-color 0.2s, color 0.2s;
+  margin-right: 4px;
+  color: var(--text-color);
+}
+
+.tab-button:hover {
+  background-color: var(--tab-hover);
+}
+
+.tab-button.active {
+  background-color: var(--accent-color);
+  color: white;
+}
+
+.tab-content {
+  padding: 10px 0;
+  width: 100%;
+}
+
+/* Ensure tab content takes full width of parent */
+.tab-content > * {
+  width: 100%;
 }
 
 /* Catalog Item Styling */

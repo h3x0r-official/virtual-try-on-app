@@ -188,4 +188,52 @@ The API is served from the root of the Flask application (e.g., `http://127.0.0.
 
 ### Add Documentation for New Endpoints
 
-(Add documentation for new endpoints here as they are created)
+### 6. Live Webcam Try-On
+
+* **Endpoint:** `/api/live-tryon`
+* **Method:** `POST`
+* **Description:** Processes a webcam frame for real-time virtual try-on. This endpoint takes a frame captured from the user's webcam and a clothing item ID, applies pose detection to identify body landmarks, and overlays the clothing item onto the user's image.
+* **Request:**
+  * **Content-Type:** `multipart/form-data`
+  * **Body:**
+    * `frame` (file, required): A JPEG or PNG image captured from the webcam
+    * `clothingItemId` (string/integer, required): The ID of the clothing item to try on
+* **Response:**
+  * **Success (200 OK):**
+
+        ```json
+        {
+          "message": "Live try-on processed successfully",
+          "resultImageUrl": "/uploads/live_tryon_1714563452.png"
+        }
+        ```
+
+  * **Error (400 Bad Request):** If required parameters are missing
+
+        ```json
+        { "error": "No frame part in the request" }
+        ```
+        
+        ```json
+        { "error": "Missing clothingItemId parameter" }
+        ```
+
+  * **Error (404 Not Found):** If the clothing item cannot be found
+
+        ```json
+        { "error": "Clothing item with ID 123 not found or missing imageUrl" }
+        ```
+
+  * **Error (422 Unprocessable Entity):** If pose detection fails
+
+        ```json
+        { "error": "Could not detect pose landmarks in frame" }
+        ```
+
+  * **Error (500 Internal Server Error):** For unexpected errors during processing
+
+        ```json
+        { "error": "An internal error occurred during live try-on processing: [error details]" }
+        ```
+
+**Note:** This endpoint processes frames on-demand and does not maintain state between requests. For smooth real-time experience, the client should limit requests to a reasonable frequency (2-3 frames per second) to avoid overwhelming the server.
