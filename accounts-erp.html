@@ -1,0 +1,2544 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Serverless NoSQL Accounts ERP System</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+
+        .header h1 {
+            color: #4a5568;
+            text-align: center;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+        }
+
+        .header p {
+            text-align: center;
+            color: #718096;
+            font-size: 1.1em;
+        }
+
+        .nav-tabs {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 20px;
+            justify-content: center;
+        }
+
+        .nav-tab {
+            padding: 12px 24px;
+            background: rgba(255, 255, 255, 0.9);
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            color: #4a5568;
+        }
+
+        .nav-tab:hover {
+            background: rgba(255, 255, 255, 1);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .nav-tab.active {
+            background: #667eea;
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .tab-content {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+
+        .tab-pane {
+            display: none;
+        }
+
+        .tab-pane.active {
+            display: block;
+            animation: fadeIn 0.3s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-row {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .form-row .form-group {
+            flex: 1;
+            min-width: 250px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #4a5568;
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+        }
+
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #5a6fd8;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-success {
+            background: #48bb78;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #38a169;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(72, 187, 120, 0.3);
+        }
+
+        .btn-danger {
+            background: #f56565;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #e53e3e;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(245, 101, 101, 0.3);
+        }
+
+        .btn-warning {
+            background: #ed8936;
+            color: white;
+        }
+
+        .btn-warning:hover {
+            background: #dd6b20;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(237, 137, 54, 0.3);
+        }
+
+        .btn-secondary {
+            background: #a0aec0;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #718096;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(160, 174, 192, 0.3);
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .data-table th,
+        .data-table td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .data-table th {
+            background: #f7fafc;
+            font-weight: 600;
+            color: #4a5568;
+            position: sticky;
+            top: 0;
+        }
+
+        .data-table tr:hover {
+            background: #f7fafc;
+        }
+
+        .data-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .search-filter {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .search-filter input,
+        .search-filter select {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 25px;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .stat-number {
+            font-size: 2.5em;
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+
+        .stat-label {
+            color: #718096;
+            font-weight: 600;
+        }
+
+        .alert {
+            padding: 15px 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            font-weight: 500;
+        }
+
+        .alert-success {
+            background: #c6f6d5;
+            color: #2f855a;
+            border: 1px solid #9ae6b4;
+        }
+
+        .alert-danger {
+            background: #fed7d7;
+            color: #c53030;
+            border: 1px solid #feb2b2;
+        }
+
+        .alert-info {
+            background: #bee3f8;
+            color: #2b6cb0;
+            border: 1px solid #90cdf4;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(5px);
+        }
+
+        .modal.show {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            max-width: 600px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            animation: modalSlideIn 0.3s ease-out;
+        }
+
+        @keyframes modalSlideIn {
+            from { 
+                opacity: 0; 
+                transform: scale(0.8) translateY(-50px); 
+            }
+            to { 
+                opacity: 1; 
+                transform: scale(1) translateY(0); 
+            }
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #e2e8f0;
+        }
+
+        .modal-header h3 {
+            color: #4a5568;
+            font-size: 1.5em;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #a0aec0;
+            transition: color 0.3s ease;
+        }
+
+        .close-btn:hover {
+            color: #718096;
+        }
+
+        .no-data {
+            text-align: center;
+            padding: 40px 20px;
+            color: #a0aec0;
+            font-size: 1.1em;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+            
+            .header h1 {
+                font-size: 2em;
+            }
+            
+            .nav-tabs {
+                justify-content: center;
+            }
+            
+            .nav-tab {
+                padding: 10px 16px;
+                font-size: 14px;
+            }
+            
+            .tab-content {
+                padding: 20px 15px;
+            }
+            
+            .form-row {
+                flex-direction: column;
+            }
+            
+            .form-row .form-group {
+                min-width: auto;
+            }
+            
+            .search-filter {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .search-filter input,
+            .search-filter select {
+                min-width: auto;
+            }
+            
+            .data-table {
+                font-size: 14px;
+            }
+            
+            .data-table th,
+            .data-table td {
+                padding: 10px 8px;
+            }
+            
+            .btn-group {
+                flex-direction: column;
+            }
+            
+            .modal-content {
+                margin: 20px;
+                width: calc(100% - 40px);
+            }
+        }
+
+        .export-section {
+            background: #f7fafc;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+
+        .export-section h4 {
+            margin-bottom: 15px;
+            color: #4a5568;
+        }
+
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-left: 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🏢 Serverless NoSQL Accounts ERP</h1>
+            <p>Complete business management system running entirely in your browser</p>
+        </div>
+
+        <div class="nav-tabs">
+            <button class="nav-tab active" onclick="showTab('dashboard')">📊 Dashboard</button>
+            <button class="nav-tab" onclick="showTab('customers')">👥 Customers</button>
+            <button class="nav-tab" onclick="showTab('suppliers')">🏭 Suppliers</button>
+            <button class="nav-tab" onclick="showTab('products')">📦 Products</button>
+            <button class="nav-tab" onclick="showTab('invoices')">🧾 Invoices</button>
+            <button class="nav-tab" onclick="showTab('payments')">💳 Payments</button>
+            <button class="nav-tab" onclick="showTab('reports')">📈 Reports</button>
+            <button class="nav-tab" onclick="showTab('settings')">⚙️ Settings</button>
+        </div>
+
+        <div class="tab-content">
+            <!-- Dashboard Tab -->
+            <div id="dashboard" class="tab-pane active">
+                <h2>📊 Business Dashboard</h2>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-number" id="totalCustomers">0</div>
+                        <div class="stat-label">Total Customers</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="totalSuppliers">0</div>
+                        <div class="stat-label">Total Suppliers</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="totalProducts">0</div>
+                        <div class="stat-label">Products in Stock</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="totalInvoices">0</div>
+                        <div class="stat-label">Total Invoices</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="totalRevenue">$0</div>
+                        <div class="stat-label">Total Revenue</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="pendingPayments">$0</div>
+                        <div class="stat-label">Pending Payments</div>
+                    </div>
+                </div>
+
+                <div class="btn-group">
+                    <button class="btn btn-primary" onclick="showQuickActions()">⚡ Quick Actions</button>
+                    <button class="btn btn-success" onclick="showTab('invoices')">🆕 New Invoice</button>
+                    <button class="btn btn-warning" onclick="generateBackup()">💾 Backup Data</button>
+                </div>
+            </div>
+
+            <!-- Customers Tab -->
+            <div id="customers" class="tab-pane">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                    <h2>👥 Customer Management</h2>
+                    <button class="btn btn-success" onclick="showCustomerModal()">➕ Add Customer</button>
+                </div>
+
+                <div class="search-filter">
+                    <input type="text" id="customerSearch" placeholder="🔍 Search customers..." onkeyup="filterCustomers()">
+                    <select id="customerTypeFilter" onchange="filterCustomers()">
+                        <option value="">All Types</option>
+                        <option value="individual">Individual</option>
+                        <option value="business">Business</option>
+                    </select>
+                </div>
+
+                <table class="data-table" id="customersTable">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>Phone</th>
+                            <th>Type</th>
+                            <th>Balance</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="customersTableBody">
+                        <tr>
+                            <td colspan="7" class="no-data">No customers found. Add your first customer to get started!</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Suppliers Tab -->
+            <div id="suppliers" class="tab-pane">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                    <h2>🏭 Supplier Management</h2>
+                    <button class="btn btn-success" onclick="showSupplierModal()">➕ Add Supplier</button>
+                </div>
+
+                <div class="search-filter">
+                    <input type="text" id="supplierSearch" placeholder="🔍 Search suppliers..." onkeyup="filterSuppliers()">
+                    <select id="supplierStatusFilter" onchange="filterSuppliers()">
+                        <option value="">All Status</option>
+                        <option value="active">Active</option>
+                        <option value="inactive">Inactive</option>
+                    </select>
+                </div>
+
+                <table class="data-table" id="suppliersTable">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Company Name</th>
+                            <th>Contact Person</th>
+                            <th>Email</th>
+                            <th>Phone</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="suppliersTableBody">
+                        <tr>
+                            <td colspan="7" class="no-data">No suppliers found. Add your first supplier to get started!</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Products Tab -->
+            <div id="products" class="tab-pane">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                    <h2>📦 Product Inventory</h2>
+                    <button class="btn btn-success" onclick="showProductModal()">➕ Add Product</button>
+                </div>
+
+                <div class="search-filter">
+                    <input type="text" id="productSearch" placeholder="🔍 Search products..." onkeyup="filterProducts()">
+                    <select id="categoryFilter" onchange="filterProducts()">
+                        <option value="">All Categories</option>
+                        <option value="electronics">Electronics</option>
+                        <option value="clothing">Clothing</option>
+                        <option value="food">Food</option>
+                        <option value="books">Books</option>
+                        <option value="home">Home & Garden</option>
+                        <option value="sports">Sports</option>
+                        <option value="other">Other</option>
+                    </select>
+                    <select id="stockFilter" onchange="filterProducts()">
+                        <option value="">All Stock Levels</option>
+                        <option value="in-stock">In Stock</option>
+                        <option value="low-stock">Low Stock</option>
+                        <option value="out-of-stock">Out of Stock</option>
+                    </select>
+                </div>
+
+                <table class="data-table" id="productsTable">
+                    <thead>
+                        <tr>
+                            <th>SKU</th>
+                            <th>Name</th>
+                            <th>Category</th>
+                            <th>Price</th>
+                            <th>Stock</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="productsTableBody">
+                        <tr>
+                            <td colspan="7" class="no-data">No products found. Add your first product to get started!</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Invoices Tab -->
+            <div id="invoices" class="tab-pane">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                    <h2>🧾 Invoice Management</h2>
+                    <button class="btn btn-success" onclick="showInvoiceModal()">➕ Create Invoice</button>
+                </div>
+
+                <div class="search-filter">
+                    <input type="text" id="invoiceSearch" placeholder="🔍 Search invoices..." onkeyup="filterInvoices()">
+                    <select id="invoiceStatusFilter" onchange="filterInvoices()">
+                        <option value="">All Status</option>
+                        <option value="draft">Draft</option>
+                        <option value="sent">Sent</option>
+                        <option value="paid">Paid</option>
+                        <option value="overdue">Overdue</option>
+                    </select>
+                    <input type="date" id="invoiceDateFrom" onchange="filterInvoices()">
+                    <input type="date" id="invoiceDateTo" onchange="filterInvoices()">
+                </div>
+
+                <table class="data-table" id="invoicesTable">
+                    <thead>
+                        <tr>
+                            <th>Invoice #</th>
+                            <th>Customer</th>
+                            <th>Date</th>
+                            <th>Due Date</th>
+                            <th>Amount</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="invoicesTableBody">
+                        <tr>
+                            <td colspan="7" class="no-data">No invoices found. Create your first invoice to get started!</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Payments Tab -->
+            <div id="payments" class="tab-pane">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                    <h2>💳 Payment Tracking</h2>
+                    <button class="btn btn-success" onclick="showPaymentModal()">➕ Record Payment</button>
+                </div>
+
+                <div class="search-filter">
+                    <input type="text" id="paymentSearch" placeholder="🔍 Search payments..." onkeyup="filterPayments()">
+                    <select id="paymentMethodFilter" onchange="filterPayments()">
+                        <option value="">All Methods</option>
+                        <option value="cash">Cash</option>
+                        <option value="check">Check</option>
+                        <option value="card">Credit Card</option>
+                        <option value="bank">Bank Transfer</option>
+                        <option value="other">Other</option>
+                    </select>
+                    <input type="date" id="paymentDateFrom" onchange="filterPayments()">
+                    <input type="date" id="paymentDateTo" onchange="filterPayments()">
+                </div>
+
+                <table class="data-table" id="paymentsTable">
+                    <thead>
+                        <tr>
+                            <th>Payment #</th>
+                            <th>Invoice #</th>
+                            <th>Customer</th>
+                            <th>Date</th>
+                            <th>Amount</th>
+                            <th>Method</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="paymentsTableBody">
+                        <tr>
+                            <td colspan="7" class="no-data">No payments recorded. Record your first payment to get started!</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Reports Tab -->
+            <div id="reports" class="tab-pane">
+                <h2>📈 Business Reports</h2>
+                
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-number" id="reportMonthlyRevenue">$0</div>
+                        <div class="stat-label">This Month Revenue</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="reportMonthlyInvoices">0</div>
+                        <div class="stat-label">This Month Invoices</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="reportAverageInvoice">$0</div>
+                        <div class="stat-label">Average Invoice Value</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="reportTopCustomer">-</div>
+                        <div class="stat-label">Top Customer</div>
+                    </div>
+                </div>
+
+                <div class="btn-group">
+                    <button class="btn btn-primary" onclick="generateSalesReport()">📊 Sales Report</button>
+                    <button class="btn btn-primary" onclick="generateCustomerReport()">👥 Customer Report</button>
+                    <button class="btn btn-primary" onclick="generateProductReport()">📦 Product Report</button>
+                    <button class="btn btn-warning" onclick="exportAllData()">📤 Export All Data</button>
+                </div>
+
+                <div class="export-section">
+                    <h4>📤 Data Export Options</h4>
+                    <div class="btn-group">
+                        <button class="btn btn-secondary" onclick="exportToCSV('customers')">Export Customers CSV</button>
+                        <button class="btn btn-secondary" onclick="exportToCSV('invoices')">Export Invoices CSV</button>
+                        <button class="btn btn-secondary" onclick="exportToCSV('products')">Export Products CSV</button>
+                        <button class="btn btn-secondary" onclick="exportToJSON()">Export JSON Backup</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Settings Tab -->
+            <div id="settings" class="tab-pane">
+                <h2>⚙️ System Settings</h2>
+                
+                <div class="form-group">
+                    <label for="companyName">Company Name</label>
+                    <input type="text" id="companyName" placeholder="Enter your company name">
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="companyEmail">Company Email</label>
+                        <input type="email" id="companyEmail" placeholder="company@example.com">
+                    </div>
+                    <div class="form-group">
+                        <label for="companyPhone">Company Phone</label>
+                        <input type="tel" id="companyPhone" placeholder="(555) 123-4567">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="companyAddress">Company Address</label>
+                    <textarea id="companyAddress" placeholder="Enter full company address"></textarea>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="defaultCurrency">Default Currency</label>
+                        <select id="defaultCurrency">
+                            <option value="USD">USD ($)</option>
+                            <option value="EUR">EUR (€)</option>
+                            <option value="GBP">GBP (£)</option>
+                            <option value="JPY">JPY (¥)</option>
+                            <option value="CAD">CAD ($)</option>
+                            <option value="AUD">AUD ($)</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="taxRate">Default Tax Rate (%)</label>
+                        <input type="number" id="taxRate" placeholder="0.00" step="0.01" min="0" max="100">
+                    </div>
+                </div>
+
+                <div class="btn-group">
+                    <button class="btn btn-success" onclick="saveSettings()">💾 Save Settings</button>
+                    <button class="btn btn-danger" onclick="clearAllData()">🗑️ Clear All Data</button>
+                    <button class="btn btn-warning" onclick="importData()">📥 Import Data</button>
+                </div>
+
+                <div class="export-section">
+                    <h4>🔄 Data Management</h4>
+                    <p>Backup your data regularly to prevent loss. You can export all data and import it later.</p>
+                    <div class="btn-group">
+                        <button class="btn btn-primary" onclick="generateFullBackup()">📦 Full Backup</button>
+                        <button class="btn btn-secondary" onclick="loadSampleData()">🎯 Load Sample Data</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Customer Modal -->
+    <div id="customerModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="customerModalTitle">Add Customer</h3>
+                <button class="close-btn" onclick="closeModal('customerModal')">&times;</button>
+            </div>
+            <form id="customerForm">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="customerName">Customer Name *</label>
+                        <input type="text" id="customerName" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="customerType">Customer Type</label>
+                        <select id="customerType">
+                            <option value="individual">Individual</option>
+                            <option value="business">Business</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="customerEmail">Email</label>
+                        <input type="email" id="customerEmail">
+                    </div>
+                    <div class="form-group">
+                        <label for="customerPhone">Phone</label>
+                        <input type="tel" id="customerPhone">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="customerAddress">Address</label>
+                    <textarea id="customerAddress"></textarea>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="customerBalance">Opening Balance</label>
+                        <input type="number" id="customerBalance" step="0.01" value="0">
+                    </div>
+                    <div class="form-group">
+                        <label for="customerNotes">Notes</label>
+                        <input type="text" id="customerNotes">
+                    </div>
+                </div>
+                <div class="btn-group">
+                    <button type="submit" class="btn btn-success">💾 Save Customer</button>
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('customerModal')">❌ Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Supplier Modal -->
+    <div id="supplierModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="supplierModalTitle">Add Supplier</h3>
+                <button class="close-btn" onclick="closeModal('supplierModal')">&times;</button>
+            </div>
+            <form id="supplierForm">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="supplierCompany">Company Name *</label>
+                        <input type="text" id="supplierCompany" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="supplierContact">Contact Person</label>
+                        <input type="text" id="supplierContact">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="supplierEmail">Email</label>
+                        <input type="email" id="supplierEmail">
+                    </div>
+                    <div class="form-group">
+                        <label for="supplierPhone">Phone</label>
+                        <input type="tel" id="supplierPhone">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="supplierAddress">Address</label>
+                    <textarea id="supplierAddress"></textarea>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="supplierStatus">Status</label>
+                        <select id="supplierStatus">
+                            <option value="active">Active</option>
+                            <option value="inactive">Inactive</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="supplierNotes">Notes</label>
+                        <input type="text" id="supplierNotes">
+                    </div>
+                </div>
+                <div class="btn-group">
+                    <button type="submit" class="btn btn-success">💾 Save Supplier</button>
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('supplierModal')">❌ Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Product Modal -->
+    <div id="productModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="productModalTitle">Add Product</h3>
+                <button class="close-btn" onclick="closeModal('productModal')">&times;</button>
+            </div>
+            <form id="productForm">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="productSku">SKU *</label>
+                        <input type="text" id="productSku" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="productName">Product Name *</label>
+                        <input type="text" id="productName" required>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="productCategory">Category</label>
+                        <select id="productCategory">
+                            <option value="electronics">Electronics</option>
+                            <option value="clothing">Clothing</option>
+                            <option value="food">Food</option>
+                            <option value="books">Books</option>
+                            <option value="home">Home & Garden</option>
+                            <option value="sports">Sports</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="productPrice">Price *</label>
+                        <input type="number" id="productPrice" step="0.01" required>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="productStock">Stock Quantity</label>
+                        <input type="number" id="productStock" min="0" value="0">
+                    </div>
+                    <div class="form-group">
+                        <label for="productMinStock">Min Stock Level</label>
+                        <input type="number" id="productMinStock" min="0" value="5">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="productDescription">Description</label>
+                    <textarea id="productDescription"></textarea>
+                </div>
+                <div class="btn-group">
+                    <button type="submit" class="btn btn-success">💾 Save Product</button>
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('productModal')">❌ Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Invoice Modal -->
+    <div id="invoiceModal" class="modal">
+        <div class="modal-content" style="max-width: 800px;">
+            <div class="modal-header">
+                <h3 id="invoiceModalTitle">Create Invoice</h3>
+                <button class="close-btn" onclick="closeModal('invoiceModal')">&times;</button>
+            </div>
+            <form id="invoiceForm">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="invoiceCustomer">Customer *</label>
+                        <select id="invoiceCustomer" required>
+                            <option value="">Select Customer</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="invoiceDate">Invoice Date *</label>
+                        <input type="date" id="invoiceDate" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="invoiceDueDate">Due Date *</label>
+                        <input type="date" id="invoiceDueDate" required>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label>Invoice Items</label>
+                    <div id="invoiceItems">
+                        <div class="invoice-item" style="display: flex; gap: 10px; margin-bottom: 10px; align-items: center;">
+                            <select class="item-product" style="flex: 2;" onchange="updateItemPrice(this)">
+                                <option value="">Select Product</option>
+                            </select>
+                            <input type="number" class="item-quantity" placeholder="Qty" style="width: 80px;" min="1" value="1" onchange="calculateItemTotal(this)">
+                            <input type="number" class="item-price" placeholder="Price" style="width: 100px;" step="0.01" onchange="calculateItemTotal(this)">
+                            <input type="number" class="item-total" placeholder="Total" style="width: 100px;" readonly>
+                            <button type="button" class="btn btn-danger" onclick="removeInvoiceItem(this)" style="padding: 8px 12px;">🗑️</button>
+                        </div>
+                    </div>
+                    <button type="button" class="btn btn-secondary" onclick="addInvoiceItem()">➕ Add Item</button>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="invoiceSubtotal">Subtotal</label>
+                        <input type="number" id="invoiceSubtotal" readonly step="0.01">
+                    </div>
+                    <div class="form-group">
+                        <label for="invoiceTax">Tax Amount</label>
+                        <input type="number" id="invoiceTax" step="0.01" onchange="calculateInvoiceTotal()">
+                    </div>
+                    <div class="form-group">
+                        <label for="invoiceTotal">Total</label>
+                        <input type="number" id="invoiceTotal" readonly step="0.01">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="invoiceNotes">Notes</label>
+                    <textarea id="invoiceNotes"></textarea>
+                </div>
+
+                <div class="btn-group">
+                    <button type="submit" class="btn btn-success">💾 Save Invoice</button>
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('invoiceModal')">❌ Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Payment Modal -->
+    <div id="paymentModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="paymentModalTitle">Record Payment</h3>
+                <button class="close-btn" onclick="closeModal('paymentModal')">&times;</button>
+            </div>
+            <form id="paymentForm">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="paymentInvoice">Invoice *</label>
+                        <select id="paymentInvoice" required onchange="updatePaymentAmount()">
+                            <option value="">Select Invoice</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="paymentDate">Payment Date *</label>
+                        <input type="date" id="paymentDate" required>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="paymentAmount">Amount *</label>
+                        <input type="number" id="paymentAmount" step="0.01" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="paymentMethod">Payment Method</label>
+                        <select id="paymentMethod">
+                            <option value="cash">Cash</option>
+                            <option value="check">Check</option>
+                            <option value="card">Credit Card</option>
+                            <option value="bank">Bank Transfer</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="paymentReference">Reference/Notes</label>
+                    <input type="text" id="paymentReference">
+                </div>
+                <div class="btn-group">
+                    <button type="submit" class="btn btn-success">💾 Record Payment</button>
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('paymentModal')">❌ Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Data Storage
+        let customers = JSON.parse(localStorage.getItem('erp_customers')) || [];
+        let suppliers = JSON.parse(localStorage.getItem('erp_suppliers')) || [];
+        let products = JSON.parse(localStorage.getItem('erp_products')) || [];
+        let invoices = JSON.parse(localStorage.getItem('erp_invoices')) || [];
+        let payments = JSON.parse(localStorage.getItem('erp_payments')) || [];
+        let settings = JSON.parse(localStorage.getItem('erp_settings')) || {
+            companyName: 'My Business',
+            companyEmail: '',
+            companyPhone: '',
+            companyAddress: '',
+            defaultCurrency: 'USD',
+            taxRate: 0
+        };
+
+        let editingId = null;
+        let editingType = null;
+
+        // Initialize the application
+        document.addEventListener('DOMContentLoaded', function() {
+            loadSettings();
+            updateDashboard();
+            refreshAllTables();
+            
+            // Set default dates
+            const today = new Date().toISOString().split('T')[0];
+            const invoiceDate = document.getElementById('invoiceDate');
+            const dueDate = document.getElementById('invoiceDueDate');
+            const paymentDate = document.getElementById('paymentDate');
+            
+            if (invoiceDate) invoiceDate.value = today;
+            if (dueDate) {
+                const nextWeek = new Date();
+                nextWeek.setDate(nextWeek.getDate() + 7);
+                dueDate.value = nextWeek.toISOString().split('T')[0];
+            }
+            if (paymentDate) paymentDate.value = today;
+        });
+
+        // Utility Functions
+        function generateId() {
+            return Date.now().toString(36) + Math.random().toString(36).substr(2);
+        }
+
+        function formatCurrency(amount) {
+            const currency = settings.defaultCurrency || 'USD';
+            return new Intl.NumberFormat('en-US', {
+                style: 'currency',
+                currency: currency
+            }).format(amount);
+        }
+
+        function formatDate(dateString) {
+            return new Date(dateString).toLocaleDateString();
+        }
+
+        function showAlert(message, type = 'success') {
+            const alertDiv = document.createElement('div');
+            alertDiv.className = `alert alert-${type}`;
+            alertDiv.textContent = message;
+            
+            const container = document.querySelector('.container');
+            container.insertBefore(alertDiv, container.firstChild);
+            
+            setTimeout(() => {
+                alertDiv.remove();
+            }, 3000);
+        }
+
+        // Tab Management
+        function showTab(tabName) {
+            // Hide all tabs
+            const tabs = document.querySelectorAll('.tab-pane');
+            tabs.forEach(tab => tab.classList.remove('active'));
+            
+            // Remove active class from nav tabs
+            const navTabs = document.querySelectorAll('.nav-tab');
+            navTabs.forEach(nav => nav.classList.remove('active'));
+            
+            // Show selected tab
+            const selectedTab = document.getElementById(tabName);
+            if (selectedTab) {
+                selectedTab.classList.add('active');
+            }
+            
+            // Add active class to nav tab
+            event.target.classList.add('active');
+            
+            // Refresh data based on tab
+            if (tabName === 'dashboard') {
+                updateDashboard();
+            } else if (tabName === 'reports') {
+                updateReports();
+            }
+        }
+
+        // Modal Management
+        function showModal(modalId) {
+            const modal = document.getElementById(modalId);
+            if (modal) {
+                modal.classList.add('show');
+            }
+        }
+
+        function closeModal(modalId) {
+            const modal = document.getElementById(modalId);
+            if (modal) {
+                modal.classList.remove('show');
+                clearForm(modalId.replace('Modal', 'Form'));
+            }
+            editingId = null;
+            editingType = null;
+        }
+
+        function clearForm(formId) {
+            const form = document.getElementById(formId);
+            if (form) {
+                form.reset();
+            }
+        }
+
+        // Customer Management
+        function showCustomerModal(id = null) {
+            editingId = id;
+            editingType = 'customer';
+            
+            const title = document.getElementById('customerModalTitle');
+            title.textContent = id ? 'Edit Customer' : 'Add Customer';
+            
+            if (id) {
+                const customer = customers.find(c => c.id === id);
+                if (customer) {
+                    document.getElementById('customerName').value = customer.name;
+                    document.getElementById('customerType').value = customer.type;
+                    document.getElementById('customerEmail').value = customer.email || '';
+                    document.getElementById('customerPhone').value = customer.phone || '';
+                    document.getElementById('customerAddress').value = customer.address || '';
+                    document.getElementById('customerBalance').value = customer.balance || 0;
+                    document.getElementById('customerNotes').value = customer.notes || '';
+                }
+            }
+            
+            showModal('customerModal');
+        }
+
+        document.getElementById('customerForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const customerData = {
+                id: editingId || generateId(),
+                name: document.getElementById('customerName').value,
+                type: document.getElementById('customerType').value,
+                email: document.getElementById('customerEmail').value,
+                phone: document.getElementById('customerPhone').value,
+                address: document.getElementById('customerAddress').value,
+                balance: parseFloat(document.getElementById('customerBalance').value) || 0,
+                notes: document.getElementById('customerNotes').value,
+                createdAt: editingId ? customers.find(c => c.id === editingId).createdAt : new Date().toISOString()
+            };
+            
+            if (editingId) {
+                const index = customers.findIndex(c => c.id === editingId);
+                customers[index] = customerData;
+                showAlert('Customer updated successfully!');
+            } else {
+                customers.push(customerData);
+                showAlert('Customer added successfully!');
+            }
+            
+            localStorage.setItem('erp_customers', JSON.stringify(customers));
+            refreshCustomersTable();
+            updateDashboard();
+            closeModal('customerModal');
+        });
+
+        function deleteCustomer(id) {
+            if (confirm('Are you sure you want to delete this customer?')) {
+                customers = customers.filter(c => c.id !== id);
+                localStorage.setItem('erp_customers', JSON.stringify(customers));
+                refreshCustomersTable();
+                updateDashboard();
+                showAlert('Customer deleted successfully!');
+            }
+        }
+
+        function refreshCustomersTable() {
+            const tbody = document.getElementById('customersTableBody');
+            
+            if (customers.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7" class="no-data">No customers found. Add your first customer to get started!</td></tr>';
+                return;
+            }
+            
+            tbody.innerHTML = customers.map(customer => `
+                <tr>
+                    <td>${customer.id.slice(-6)}</td>
+                    <td>${customer.name}</td>
+                    <td>${customer.email || '-'}</td>
+                    <td>${customer.phone || '-'}</td>
+                    <td><span style="text-transform: capitalize;">${customer.type}</span></td>
+                    <td>${formatCurrency(customer.balance)}</td>
+                    <td>
+                        <button class="btn btn-warning" onclick="showCustomerModal('${customer.id}')" style="padding: 5px 10px; margin-right: 5px;">✏️</button>
+                        <button class="btn btn-danger" onclick="deleteCustomer('${customer.id}')" style="padding: 5px 10px;">🗑️</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function filterCustomers() {
+            const searchTerm = document.getElementById('customerSearch').value.toLowerCase();
+            const typeFilter = document.getElementById('customerTypeFilter').value;
+            
+            let filteredCustomers = customers;
+            
+            if (searchTerm) {
+                filteredCustomers = filteredCustomers.filter(customer => 
+                    customer.name.toLowerCase().includes(searchTerm) ||
+                    (customer.email && customer.email.toLowerCase().includes(searchTerm)) ||
+                    (customer.phone && customer.phone.includes(searchTerm))
+                );
+            }
+            
+            if (typeFilter) {
+                filteredCustomers = filteredCustomers.filter(customer => customer.type === typeFilter);
+            }
+            
+            const tbody = document.getElementById('customersTableBody');
+            
+            if (filteredCustomers.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7" class="no-data">No customers match your search criteria.</td></tr>';
+                return;
+            }
+            
+            tbody.innerHTML = filteredCustomers.map(customer => `
+                <tr>
+                    <td>${customer.id.slice(-6)}</td>
+                    <td>${customer.name}</td>
+                    <td>${customer.email || '-'}</td>
+                    <td>${customer.phone || '-'}</td>
+                    <td><span style="text-transform: capitalize;">${customer.type}</span></td>
+                    <td>${formatCurrency(customer.balance)}</td>
+                    <td>
+                        <button class="btn btn-warning" onclick="showCustomerModal('${customer.id}')" style="padding: 5px 10px; margin-right: 5px;">✏️</button>
+                        <button class="btn btn-danger" onclick="deleteCustomer('${customer.id}')" style="padding: 5px 10px;">🗑️</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        // Supplier Management
+        function showSupplierModal(id = null) {
+            editingId = id;
+            editingType = 'supplier';
+            
+            const title = document.getElementById('supplierModalTitle');
+            title.textContent = id ? 'Edit Supplier' : 'Add Supplier';
+            
+            if (id) {
+                const supplier = suppliers.find(s => s.id === id);
+                if (supplier) {
+                    document.getElementById('supplierCompany').value = supplier.company;
+                    document.getElementById('supplierContact').value = supplier.contact || '';
+                    document.getElementById('supplierEmail').value = supplier.email || '';
+                    document.getElementById('supplierPhone').value = supplier.phone || '';
+                    document.getElementById('supplierAddress').value = supplier.address || '';
+                    document.getElementById('supplierStatus').value = supplier.status || 'active';
+                    document.getElementById('supplierNotes').value = supplier.notes || '';
+                }
+            }
+            
+            showModal('supplierModal');
+        }
+
+        document.getElementById('supplierForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const supplierData = {
+                id: editingId || generateId(),
+                company: document.getElementById('supplierCompany').value,
+                contact: document.getElementById('supplierContact').value,
+                email: document.getElementById('supplierEmail').value,
+                phone: document.getElementById('supplierPhone').value,
+                address: document.getElementById('supplierAddress').value,
+                status: document.getElementById('supplierStatus').value,
+                notes: document.getElementById('supplierNotes').value,
+                createdAt: editingId ? suppliers.find(s => s.id === editingId).createdAt : new Date().toISOString()
+            };
+            
+            if (editingId) {
+                const index = suppliers.findIndex(s => s.id === editingId);
+                suppliers[index] = supplierData;
+                showAlert('Supplier updated successfully!');
+            } else {
+                suppliers.push(supplierData);
+                showAlert('Supplier added successfully!');
+            }
+            
+            localStorage.setItem('erp_suppliers', JSON.stringify(suppliers));
+            refreshSuppliersTable();
+            updateDashboard();
+            closeModal('supplierModal');
+        });
+
+        function deleteSupplier(id) {
+            if (confirm('Are you sure you want to delete this supplier?')) {
+                suppliers = suppliers.filter(s => s.id !== id);
+                localStorage.setItem('erp_suppliers', JSON.stringify(suppliers));
+                refreshSuppliersTable();
+                updateDashboard();
+                showAlert('Supplier deleted successfully!');
+            }
+        }
+
+        function refreshSuppliersTable() {
+            const tbody = document.getElementById('suppliersTableBody');
+            
+            if (suppliers.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7" class="no-data">No suppliers found. Add your first supplier to get started!</td></tr>';
+                return;
+            }
+            
+            tbody.innerHTML = suppliers.map(supplier => `
+                <tr>
+                    <td>${supplier.id.slice(-6)}</td>
+                    <td>${supplier.company}</td>
+                    <td>${supplier.contact || '-'}</td>
+                    <td>${supplier.email || '-'}</td>
+                    <td>${supplier.phone || '-'}</td>
+                    <td><span style="text-transform: capitalize; color: ${supplier.status === 'active' ? '#48bb78' : '#f56565'}">${supplier.status}</span></td>
+                    <td>
+                        <button class="btn btn-warning" onclick="showSupplierModal('${supplier.id}')" style="padding: 5px 10px; margin-right: 5px;">✏️</button>
+                        <button class="btn btn-danger" onclick="deleteSupplier('${supplier.id}')" style="padding: 5px 10px;">🗑️</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function filterSuppliers() {
+            const searchTerm = document.getElementById('supplierSearch').value.toLowerCase();
+            const statusFilter = document.getElementById('supplierStatusFilter').value;
+            
+            let filteredSuppliers = suppliers;
+            
+            if (searchTerm) {
+                filteredSuppliers = filteredSuppliers.filter(supplier => 
+                    supplier.company.toLowerCase().includes(searchTerm) ||
+                    (supplier.contact && supplier.contact.toLowerCase().includes(searchTerm)) ||
+                    (supplier.email && supplier.email.toLowerCase().includes(searchTerm))
+                );
+            }
+            
+            if (statusFilter) {
+                filteredSuppliers = filteredSuppliers.filter(supplier => supplier.status === statusFilter);
+            }
+            
+            const tbody = document.getElementById('suppliersTableBody');
+            
+            if (filteredSuppliers.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7" class="no-data">No suppliers match your search criteria.</td></tr>';
+                return;
+            }
+            
+            tbody.innerHTML = filteredSuppliers.map(supplier => `
+                <tr>
+                    <td>${supplier.id.slice(-6)}</td>
+                    <td>${supplier.company}</td>
+                    <td>${supplier.contact || '-'}</td>
+                    <td>${supplier.email || '-'}</td>
+                    <td>${supplier.phone || '-'}</td>
+                    <td><span style="text-transform: capitalize; color: ${supplier.status === 'active' ? '#48bb78' : '#f56565'}">${supplier.status}</span></td>
+                    <td>
+                        <button class="btn btn-warning" onclick="showSupplierModal('${supplier.id}')" style="padding: 5px 10px; margin-right: 5px;">✏️</button>
+                        <button class="btn btn-danger" onclick="deleteSupplier('${supplier.id}')" style="padding: 5px 10px;">🗑️</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        // Product Management
+        function showProductModal(id = null) {
+            editingId = id;
+            editingType = 'product';
+            
+            const title = document.getElementById('productModalTitle');
+            title.textContent = id ? 'Edit Product' : 'Add Product';
+            
+            if (id) {
+                const product = products.find(p => p.id === id);
+                if (product) {
+                    document.getElementById('productSku').value = product.sku;
+                    document.getElementById('productName').value = product.name;
+                    document.getElementById('productCategory').value = product.category;
+                    document.getElementById('productPrice').value = product.price;
+                    document.getElementById('productStock').value = product.stock;
+                    document.getElementById('productMinStock').value = product.minStock || 5;
+                    document.getElementById('productDescription').value = product.description || '';
+                }
+            }
+            
+            showModal('productModal');
+        }
+
+        document.getElementById('productForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const sku = document.getElementById('productSku').value;
+            
+            // Check if SKU already exists (only for new products)
+            if (!editingId && products.find(p => p.sku === sku)) {
+                showAlert('SKU already exists!', 'danger');
+                return;
+            }
+            
+            const productData = {
+                id: editingId || generateId(),
+                sku: sku,
+                name: document.getElementById('productName').value,
+                category: document.getElementById('productCategory').value,
+                price: parseFloat(document.getElementById('productPrice').value),
+                stock: parseInt(document.getElementById('productStock').value) || 0,
+                minStock: parseInt(document.getElementById('productMinStock').value) || 5,
+                description: document.getElementById('productDescription').value,
+                createdAt: editingId ? products.find(p => p.id === editingId).createdAt : new Date().toISOString()
+            };
+            
+            if (editingId) {
+                const index = products.findIndex(p => p.id === editingId);
+                products[index] = productData;
+                showAlert('Product updated successfully!');
+            } else {
+                products.push(productData);
+                showAlert('Product added successfully!');
+            }
+            
+            localStorage.setItem('erp_products', JSON.stringify(products));
+            refreshProductsTable();
+            updateDashboard();
+            updateInvoiceProducts();
+            closeModal('productModal');
+        });
+
+        function deleteProduct(id) {
+            if (confirm('Are you sure you want to delete this product?')) {
+                products = products.filter(p => p.id !== id);
+                localStorage.setItem('erp_products', JSON.stringify(products));
+                refreshProductsTable();
+                updateDashboard();
+                updateInvoiceProducts();
+                showAlert('Product deleted successfully!');
+            }
+        }
+
+        function refreshProductsTable() {
+            const tbody = document.getElementById('productsTableBody');
+            
+            if (products.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7" class="no-data">No products found. Add your first product to get started!</td></tr>';
+                return;
+            }
+            
+            tbody.innerHTML = products.map(product => {
+                let status = 'In Stock';
+                let statusColor = '#48bb78';
+                
+                if (product.stock === 0) {
+                    status = 'Out of Stock';
+                    statusColor = '#f56565';
+                } else if (product.stock <= product.minStock) {
+                    status = 'Low Stock';
+                    statusColor = '#ed8936';
+                }
+                
+                return `
+                    <tr>
+                        <td>${product.sku}</td>
+                        <td>${product.name}</td>
+                        <td><span style="text-transform: capitalize;">${product.category}</span></td>
+                        <td>${formatCurrency(product.price)}</td>
+                        <td>${product.stock}</td>
+                        <td><span style="color: ${statusColor}; font-weight: 600;">${status}</span></td>
+                        <td>
+                            <button class="btn btn-warning" onclick="showProductModal('${product.id}')" style="padding: 5px 10px; margin-right: 5px;">✏️</button>
+                            <button class="btn btn-danger" onclick="deleteProduct('${product.id}')" style="padding: 5px 10px;">🗑️</button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function filterProducts() {
+            const searchTerm = document.getElementById('productSearch').value.toLowerCase();
+            const categoryFilter = document.getElementById('categoryFilter').value;
+            const stockFilter = document.getElementById('stockFilter').value;
+            
+            let filteredProducts = products;
+            
+            if (searchTerm) {
+                filteredProducts = filteredProducts.filter(product => 
+                    product.name.toLowerCase().includes(searchTerm) ||
+                    product.sku.toLowerCase().includes(searchTerm) ||
+                    (product.description && product.description.toLowerCase().includes(searchTerm))
+                );
+            }
+            
+            if (categoryFilter) {
+                filteredProducts = filteredProducts.filter(product => product.category === categoryFilter);
+            }
+            
+            if (stockFilter) {
+                filteredProducts = filteredProducts.filter(product => {
+                    if (stockFilter === 'in-stock') return product.stock > product.minStock;
+                    if (stockFilter === 'low-stock') return product.stock > 0 && product.stock <= product.minStock;
+                    if (stockFilter === 'out-of-stock') return product.stock === 0;
+                    return true;
+                });
+            }
+            
+            const tbody = document.getElementById('productsTableBody');
+            
+            if (filteredProducts.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7" class="no-data">No products match your search criteria.</td></tr>';
+                return;
+            }
+            
+            tbody.innerHTML = filteredProducts.map(product => {
+                let status = 'In Stock';
+                let statusColor = '#48bb78';
+                
+                if (product.stock === 0) {
+                    status = 'Out of Stock';
+                    statusColor = '#f56565';
+                } else if (product.stock <= product.minStock) {
+                    status = 'Low Stock';
+                    statusColor = '#ed8936';
+                }
+                
+                return `
+                    <tr>
+                        <td>${product.sku}</td>
+                        <td>${product.name}</td>
+                        <td><span style="text-transform: capitalize;">${product.category}</span></td>
+                        <td>${formatCurrency(product.price)}</td>
+                        <td>${product.stock}</td>
+                        <td><span style="color: ${statusColor}; font-weight: 600;">${status}</span></td>
+                        <td>
+                            <button class="btn btn-warning" onclick="showProductModal('${product.id}')" style="padding: 5px 10px; margin-right: 5px;">✏️</button>
+                            <button class="btn btn-danger" onclick="deleteProduct('${product.id}')" style="padding: 5px 10px;">🗑️</button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        // Invoice Management
+        function showInvoiceModal(id = null) {
+            editingId = id;
+            editingType = 'invoice';
+            
+            const title = document.getElementById('invoiceModalTitle');
+            title.textContent = id ? 'Edit Invoice' : 'Create Invoice';
+            
+            updateInvoiceCustomers();
+            updateInvoiceProducts();
+            
+            if (id) {
+                const invoice = invoices.find(i => i.id === id);
+                if (invoice) {
+                    document.getElementById('invoiceCustomer').value = invoice.customerId;
+                    document.getElementById('invoiceDate').value = invoice.date;
+                    document.getElementById('invoiceDueDate').value = invoice.dueDate;
+                    document.getElementById('invoiceNotes').value = invoice.notes || '';
+                    
+                    // Clear existing items and add invoice items
+                    const itemsContainer = document.getElementById('invoiceItems');
+                    itemsContainer.innerHTML = '';
+                    
+                    invoice.items.forEach(item => {
+                        addInvoiceItem(item);
+                    });
+                    
+                    calculateInvoiceTotal();
+                }
+            } else {
+                // Add one empty item for new invoices
+                const itemsContainer = document.getElementById('invoiceItems');
+                itemsContainer.innerHTML = '';
+                addInvoiceItem();
+            }
+            
+            showModal('invoiceModal');
+        }
+
+        function updateInvoiceCustomers() {
+            const select = document.getElementById('invoiceCustomer');
+            select.innerHTML = '<option value="">Select Customer</option>';
+            
+            customers.forEach(customer => {
+                const option = document.createElement('option');
+                option.value = customer.id;
+                option.textContent = customer.name;
+                select.appendChild(option);
+            });
+        }
+
+        function updateInvoiceProducts() {
+            const productSelects = document.querySelectorAll('.item-product');
+            productSelects.forEach(select => {
+                const currentValue = select.value;
+                select.innerHTML = '<option value="">Select Product</option>';
+                
+                products.forEach(product => {
+                    const option = document.createElement('option');
+                    option.value = product.id;
+                    option.textContent = `${product.name} (${product.sku}) - ${formatCurrency(product.price)}`;
+                    option.dataset.price = product.price;
+                    select.appendChild(option);
+                });
+                
+                select.value = currentValue;
+            });
+        }
+
+        function addInvoiceItem(itemData = null) {
+            const itemsContainer = document.getElementById('invoiceItems');
+            const itemDiv = document.createElement('div');
+            itemDiv.className = 'invoice-item';
+            itemDiv.style = 'display: flex; gap: 10px; margin-bottom: 10px; align-items: center;';
+            
+            itemDiv.innerHTML = `
+                <select class="item-product" style="flex: 2;" onchange="updateItemPrice(this)">
+                    <option value="">Select Product</option>
+                </select>
+                <input type="number" class="item-quantity" placeholder="Qty" style="width: 80px;" min="1" value="${itemData ? itemData.quantity : 1}" onchange="calculateItemTotal(this)">
+                <input type="number" class="item-price" placeholder="Price" style="width: 100px;" step="0.01" value="${itemData ? itemData.price : ''}" onchange="calculateItemTotal(this)">
+                <input type="number" class="item-total" placeholder="Total" style="width: 100px;" readonly value="${itemData ? itemData.total : ''}">
+                <button type="button" class="btn btn-danger" onclick="removeInvoiceItem(this)" style="padding: 8px 12px;">🗑️</button>
+            `;
+            
+            itemsContainer.appendChild(itemDiv);
+            
+            // Update product options
+            const productSelect = itemDiv.querySelector('.item-product');
+            products.forEach(product => {
+                const option = document.createElement('option');
+                option.value = product.id;
+                option.textContent = `${product.name} (${product.sku}) - ${formatCurrency(product.price)}`;
+                option.dataset.price = product.price;
+                productSelect.appendChild(option);
+            });
+            
+            if (itemData) {
+                productSelect.value = itemData.productId;
+            }
+        }
+
+        function removeInvoiceItem(button) {
+            button.parentElement.remove();
+            calculateInvoiceTotal();
+        }
+
+        function updateItemPrice(selectElement) {
+            const selectedOption = selectElement.options[selectElement.selectedIndex];
+            const priceInput = selectElement.parentElement.querySelector('.item-price');
+            
+            if (selectedOption.dataset.price) {
+                priceInput.value = selectedOption.dataset.price;
+                calculateItemTotal(priceInput);
+            }
+        }
+
+        function calculateItemTotal(input) {
+            const itemDiv = input.parentElement;
+            const quantity = parseFloat(itemDiv.querySelector('.item-quantity').value) || 0;
+            const price = parseFloat(itemDiv.querySelector('.item-price').value) || 0;
+            const totalInput = itemDiv.querySelector('.item-total');
+            
+            totalInput.value = (quantity * price).toFixed(2);
+            calculateInvoiceTotal();
+        }
+
+        function calculateInvoiceTotal() {
+            const itemTotals = document.querySelectorAll('.item-total');
+            let subtotal = 0;
+            
+            itemTotals.forEach(input => {
+                subtotal += parseFloat(input.value) || 0;
+            });
+            
+            const tax = parseFloat(document.getElementById('invoiceTax').value) || 0;
+            const total = subtotal + tax;
+            
+            document.getElementById('invoiceSubtotal').value = subtotal.toFixed(2);
+            document.getElementById('invoiceTotal').value = total.toFixed(2);
+        }
+
+        document.getElementById('invoiceForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const items = [];
+            const itemDivs = document.querySelectorAll('.invoice-item');
+            
+            itemDivs.forEach(div => {
+                const productId = div.querySelector('.item-product').value;
+                const quantity = parseFloat(div.querySelector('.item-quantity').value) || 0;
+                const price = parseFloat(div.querySelector('.item-price').value) || 0;
+                const total = parseFloat(div.querySelector('.item-total').value) || 0;
+                
+                if (productId && quantity > 0 && price > 0) {
+                    const product = products.find(p => p.id === productId);
+                    items.push({
+                        productId: productId,
+                        productName: product ? product.name : '',
+                        productSku: product ? product.sku : '',
+                        quantity: quantity,
+                        price: price,
+                        total: total
+                    });
+                }
+            });
+            
+            if (items.length === 0) {
+                showAlert('Please add at least one item to the invoice!', 'danger');
+                return;
+            }
+            
+            const customerId = document.getElementById('invoiceCustomer').value;
+            if (!customerId) {
+                showAlert('Please select a customer!', 'danger');
+                return;
+            }
+            
+            const customer = customers.find(c => c.id === customerId);
+            const invoiceNumber = editingId ? invoices.find(i => i.id === editingId).number : `INV-${Date.now()}`;
+            
+            const invoiceData = {
+                id: editingId || generateId(),
+                number: invoiceNumber,
+                customerId: customerId,
+                customerName: customer ? customer.name : '',
+                date: document.getElementById('invoiceDate').value,
+                dueDate: document.getElementById('invoiceDueDate').value,
+                items: items,
+                subtotal: parseFloat(document.getElementById('invoiceSubtotal').value),
+                tax: parseFloat(document.getElementById('invoiceTax').value) || 0,
+                total: parseFloat(document.getElementById('invoiceTotal').value),
+                notes: document.getElementById('invoiceNotes').value,
+                status: editingId ? invoices.find(i => i.id === editingId).status : 'draft',
+                createdAt: editingId ? invoices.find(i => i.id === editingId).createdAt : new Date().toISOString()
+            };
+            
+            if (editingId) {
+                const index = invoices.findIndex(i => i.id === editingId);
+                invoices[index] = invoiceData;
+                showAlert('Invoice updated successfully!');
+            } else {
+                invoices.push(invoiceData);
+                showAlert('Invoice created successfully!');
+            }
+            
+            localStorage.setItem('erp_invoices', JSON.stringify(invoices));
+            refreshInvoicesTable();
+            updateDashboard();
+            updatePaymentInvoices();
+            closeModal('invoiceModal');
+        });
+
+        function deleteInvoice(id) {
+            if (confirm('Are you sure you want to delete this invoice?')) {
+                invoices = invoices.filter(i => i.id !== id);
+                localStorage.setItem('erp_invoices', JSON.stringify(invoices));
+                refreshInvoicesTable();
+                updateDashboard();
+                updatePaymentInvoices();
+                showAlert('Invoice deleted successfully!');
+            }
+        }
+
+        function refreshInvoicesTable() {
+            const tbody = document.getElementById('invoicesTableBody');
+            
+            if (invoices.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7" class="no-data">No invoices found. Create your first invoice to get started!</td></tr>';
+                return;
+            }
+            
+            tbody.innerHTML = invoices.map(invoice => {
+                let statusColor = '#a0aec0';
+                if (invoice.status === 'sent') statusColor = '#ed8936';
+                if (invoice.status === 'paid') statusColor = '#48bb78';
+                if (invoice.status === 'overdue') statusColor = '#f56565';
+                
+                return `
+                    <tr>
+                        <td>${invoice.number}</td>
+                        <td>${invoice.customerName}</td>
+                        <td>${formatDate(invoice.date)}</td>
+                        <td>${formatDate(invoice.dueDate)}</td>
+                        <td>${formatCurrency(invoice.total)}</td>
+                        <td><span style="color: ${statusColor}; font-weight: 600; text-transform: capitalize;">${invoice.status}</span></td>
+                        <td>
+                            <button class="btn btn-warning" onclick="showInvoiceModal('${invoice.id}')" style="padding: 5px 10px; margin-right: 5px;">✏️</button>
+                            <button class="btn btn-danger" onclick="deleteInvoice('${invoice.id}')" style="padding: 5px 10px;">🗑️</button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function filterInvoices() {
+            const searchTerm = document.getElementById('invoiceSearch').value.toLowerCase();
+            const statusFilter = document.getElementById('invoiceStatusFilter').value;
+            const dateFrom = document.getElementById('invoiceDateFrom').value;
+            const dateTo = document.getElementById('invoiceDateTo').value;
+            
+            let filteredInvoices = invoices;
+            
+            if (searchTerm) {
+                filteredInvoices = filteredInvoices.filter(invoice => 
+                    invoice.number.toLowerCase().includes(searchTerm) ||
+                    invoice.customerName.toLowerCase().includes(searchTerm)
+                );
+            }
+            
+            if (statusFilter) {
+                filteredInvoices = filteredInvoices.filter(invoice => invoice.status === statusFilter);
+            }
+            
+            if (dateFrom) {
+                filteredInvoices = filteredInvoices.filter(invoice => invoice.date >= dateFrom);
+            }
+            
+            if (dateTo) {
+                filteredInvoices = filteredInvoices.filter(invoice => invoice.date <= dateTo);
+            }
+            
+            const tbody = document.getElementById('invoicesTableBody');
+            
+            if (filteredInvoices.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7" class="no-data">No invoices match your search criteria.</td></tr>';
+                return;
+            }
+            
+            tbody.innerHTML = filteredInvoices.map(invoice => {
+                let statusColor = '#a0aec0';
+                if (invoice.status === 'sent') statusColor = '#ed8936';
+                if (invoice.status === 'paid') statusColor = '#48bb78';
+                if (invoice.status === 'overdue') statusColor = '#f56565';
+                
+                return `
+                    <tr>
+                        <td>${invoice.number}</td>
+                        <td>${invoice.customerName}</td>
+                        <td>${formatDate(invoice.date)}</td>
+                        <td>${formatDate(invoice.dueDate)}</td>
+                        <td>${formatCurrency(invoice.total)}</td>
+                        <td><span style="color: ${statusColor}; font-weight: 600; text-transform: capitalize;">${invoice.status}</span></td>
+                        <td>
+                            <button class="btn btn-warning" onclick="showInvoiceModal('${invoice.id}')" style="padding: 5px 10px; margin-right: 5px;">✏️</button>
+                            <button class="btn btn-danger" onclick="deleteInvoice('${invoice.id}')" style="padding: 5px 10px;">🗑️</button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        // Payment Management
+        function showPaymentModal(id = null) {
+            editingId = id;
+            editingType = 'payment';
+            
+            const title = document.getElementById('paymentModalTitle');
+            title.textContent = id ? 'Edit Payment' : 'Record Payment';
+            
+            updatePaymentInvoices();
+            
+            if (id) {
+                const payment = payments.find(p => p.id === id);
+                if (payment) {
+                    document.getElementById('paymentInvoice').value = payment.invoiceId;
+                    document.getElementById('paymentDate').value = payment.date;
+                    document.getElementById('paymentAmount').value = payment.amount;
+                    document.getElementById('paymentMethod').value = payment.method;
+                    document.getElementById('paymentReference').value = payment.reference || '';
+                }
+            }
+            
+            showModal('paymentModal');
+        }
+
+        function updatePaymentInvoices() {
+            const select = document.getElementById('paymentInvoice');
+            select.innerHTML = '<option value="">Select Invoice</option>';
+            
+            // Only show unpaid or partially paid invoices
+            const unpaidInvoices = invoices.filter(invoice => invoice.status !== 'paid');
+            
+            unpaidInvoices.forEach(invoice => {
+                const option = document.createElement('option');
+                option.value = invoice.id;
+                option.textContent = `${invoice.number} - ${invoice.customerName} - ${formatCurrency(invoice.total)}`;
+                option.dataset.amount = invoice.total;
+                select.appendChild(option);
+            });
+        }
+
+        function updatePaymentAmount() {
+            const select = document.getElementById('paymentInvoice');
+            const amountInput = document.getElementById('paymentAmount');
+            const selectedOption = select.options[select.selectedIndex];
+            
+            if (selectedOption.dataset.amount) {
+                amountInput.value = selectedOption.dataset.amount;
+            }
+        }
+
+        document.getElementById('paymentForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const invoiceId = document.getElementById('paymentInvoice').value;
+            if (!invoiceId) {
+                showAlert('Please select an invoice!', 'danger');
+                return;
+            }
+            
+            const invoice = invoices.find(i => i.id === invoiceId);
+            const paymentNumber = editingId ? payments.find(p => p.id === editingId).number : `PAY-${Date.now()}`;
+            
+            const paymentData = {
+                id: editingId || generateId(),
+                number: paymentNumber,
+                invoiceId: invoiceId,
+                invoiceNumber: invoice ? invoice.number : '',
+                customerName: invoice ? invoice.customerName : '',
+                date: document.getElementById('paymentDate').value,
+                amount: parseFloat(document.getElementById('paymentAmount').value),
+                method: document.getElementById('paymentMethod').value,
+                reference: document.getElementById('paymentReference').value,
+                createdAt: editingId ? payments.find(p => p.id === editingId).createdAt : new Date().toISOString()
+            };
+            
+            if (editingId) {
+                const index = payments.findIndex(p => p.id === editingId);
+                payments[index] = paymentData;
+                showAlert('Payment updated successfully!');
+            } else {
+                payments.push(paymentData);
+                showAlert('Payment recorded successfully!');
+                
+                // Update invoice status
+                if (invoice && paymentData.amount >= invoice.total) {
+                    const invoiceIndex = invoices.findIndex(i => i.id === invoiceId);
+                    invoices[invoiceIndex].status = 'paid';
+                    localStorage.setItem('erp_invoices', JSON.stringify(invoices));
+                }
+            }
+            
+            localStorage.setItem('erp_payments', JSON.stringify(payments));
+            refreshPaymentsTable();
+            refreshInvoicesTable();
+            updateDashboard();
+            closeModal('paymentModal');
+        });
+
+        function deletePayment(id) {
+            if (confirm('Are you sure you want to delete this payment?')) {
+                payments = payments.filter(p => p.id !== id);
+                localStorage.setItem('erp_payments', JSON.stringify(payments));
+                refreshPaymentsTable();
+                updateDashboard();
+                showAlert('Payment deleted successfully!');
+            }
+        }
+
+        function refreshPaymentsTable() {
+            const tbody = document.getElementById('paymentsTableBody');
+            
+            if (payments.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7" class="no-data">No payments recorded. Record your first payment to get started!</td></tr>';
+                return;
+            }
+            
+            tbody.innerHTML = payments.map(payment => `
+                <tr>
+                    <td>${payment.number}</td>
+                    <td>${payment.invoiceNumber}</td>
+                    <td>${payment.customerName}</td>
+                    <td>${formatDate(payment.date)}</td>
+                    <td>${formatCurrency(payment.amount)}</td>
+                    <td><span style="text-transform: capitalize;">${payment.method}</span></td>
+                    <td>
+                        <button class="btn btn-warning" onclick="showPaymentModal('${payment.id}')" style="padding: 5px 10px; margin-right: 5px;">✏️</button>
+                        <button class="btn btn-danger" onclick="deletePayment('${payment.id}')" style="padding: 5px 10px;">🗑️</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function filterPayments() {
+            const searchTerm = document.getElementById('paymentSearch').value.toLowerCase();
+            const methodFilter = document.getElementById('paymentMethodFilter').value;
+            const dateFrom = document.getElementById('paymentDateFrom').value;
+            const dateTo = document.getElementById('paymentDateTo').value;
+            
+            let filteredPayments = payments;
+            
+            if (searchTerm) {
+                filteredPayments = filteredPayments.filter(payment => 
+                    payment.number.toLowerCase().includes(searchTerm) ||
+                    payment.invoiceNumber.toLowerCase().includes(searchTerm) ||
+                    payment.customerName.toLowerCase().includes(searchTerm)
+                );
+            }
+            
+            if (methodFilter) {
+                filteredPayments = filteredPayments.filter(payment => payment.method === methodFilter);
+            }
+            
+            if (dateFrom) {
+                filteredPayments = filteredPayments.filter(payment => payment.date >= dateFrom);
+            }
+            
+            if (dateTo) {
+                filteredPayments = filteredPayments.filter(payment => payment.date <= dateTo);
+            }
+            
+            const tbody = document.getElementById('paymentsTableBody');
+            
+            if (filteredPayments.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7" class="no-data">No payments match your search criteria.</td></tr>';
+                return;
+            }
+            
+            tbody.innerHTML = filteredPayments.map(payment => `
+                <tr>
+                    <td>${payment.number}</td>
+                    <td>${payment.invoiceNumber}</td>
+                    <td>${payment.customerName}</td>
+                    <td>${formatDate(payment.date)}</td>
+                    <td>${formatCurrency(payment.amount)}</td>
+                    <td><span style="text-transform: capitalize;">${payment.method}</span></td>
+                    <td>
+                        <button class="btn btn-warning" onclick="showPaymentModal('${payment.id}')" style="padding: 5px 10px; margin-right: 5px;">✏️</button>
+                        <button class="btn btn-danger" onclick="deletePayment('${payment.id}')" style="padding: 5px 10px;">🗑️</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        // Dashboard Updates
+        function updateDashboard() {
+            document.getElementById('totalCustomers').textContent = customers.length;
+            document.getElementById('totalSuppliers').textContent = suppliers.length;
+            document.getElementById('totalProducts').textContent = products.length;
+            document.getElementById('totalInvoices').textContent = invoices.length;
+            
+            const totalRevenue = payments.reduce((sum, payment) => sum + payment.amount, 0);
+            document.getElementById('totalRevenue').textContent = formatCurrency(totalRevenue);
+            
+            const unpaidInvoices = invoices.filter(invoice => invoice.status !== 'paid');
+            const pendingAmount = unpaidInvoices.reduce((sum, invoice) => sum + invoice.total, 0);
+            document.getElementById('pendingPayments').textContent = formatCurrency(pendingAmount);
+        }
+
+        // Reports
+        function updateReports() {
+            const currentMonth = new Date().getMonth();
+            const currentYear = new Date().getFullYear();
+            
+            const thisMonthInvoices = invoices.filter(invoice => {
+                const invoiceDate = new Date(invoice.date);
+                return invoiceDate.getMonth() === currentMonth && invoiceDate.getFullYear() === currentYear;
+            });
+            
+            const thisMonthPayments = payments.filter(payment => {
+                const paymentDate = new Date(payment.date);
+                return paymentDate.getMonth() === currentMonth && paymentDate.getFullYear() === currentYear;
+            });
+            
+            const monthlyRevenue = thisMonthPayments.reduce((sum, payment) => sum + payment.amount, 0);
+            document.getElementById('reportMonthlyRevenue').textContent = formatCurrency(monthlyRevenue);
+            document.getElementById('reportMonthlyInvoices').textContent = thisMonthInvoices.length;
+            
+            const averageInvoice = invoices.length > 0 ? 
+                invoices.reduce((sum, invoice) => sum + invoice.total, 0) / invoices.length : 0;
+            document.getElementById('reportAverageInvoice').textContent = formatCurrency(averageInvoice);
+            
+            // Find top customer
+            const customerTotals = {};
+            payments.forEach(payment => {
+                if (!customerTotals[payment.customerName]) {
+                    customerTotals[payment.customerName] = 0;
+                }
+                customerTotals[payment.customerName] += payment.amount;
+            });
+            
+            const topCustomer = Object.keys(customerTotals).length > 0 ? 
+                Object.keys(customerTotals).reduce((a, b) => customerTotals[a] > customerTotals[b] ? a : b) : '-';
+            document.getElementById('reportTopCustomer').textContent = topCustomer;
+        }
+
+        // Export Functions
+        function exportToCSV(type) {
+            let data = [];
+            let filename = '';
+            
+            switch(type) {
+                case 'customers':
+                    data = customers.map(c => [c.id, c.name, c.email || '', c.phone || '', c.type, c.balance]);
+                    filename = 'customers.csv';
+                    break;
+                case 'suppliers':
+                    data = suppliers.map(s => [s.id, s.company, s.contact || '', s.email || '', s.phone || '', s.status]);
+                    filename = 'suppliers.csv';
+                    break;
+                case 'products':
+                    data = products.map(p => [p.sku, p.name, p.category, p.price, p.stock, p.minStock]);
+                    filename = 'products.csv';
+                    break;
+                case 'invoices':
+                    data = invoices.map(i => [i.number, i.customerName, i.date, i.dueDate, i.subtotal, i.tax, i.total, i.status]);
+                    filename = 'invoices.csv';
+                    break;
+                case 'payments':
+                    data = payments.map(p => [p.number, p.invoiceNumber, p.customerName, p.date, p.amount, p.method]);
+                    filename = 'payments.csv';
+                    break;
+            }
+            
+            if (data.length === 0) {
+                showAlert(`No ${type} data to export!`, 'info');
+                return;
+            }
+            
+            const csv = data.map(row => row.map(field => `"${field}"`).join(',')).join('\n');
+            downloadFile(csv, filename, 'text/csv');
+            showAlert(`${type} exported successfully!`);
+        }
+
+        function exportToJSON() {
+            const allData = {
+                customers: customers,
+                suppliers: suppliers,
+                products: products,
+                invoices: invoices,
+                payments: payments,
+                settings: settings,
+                exportDate: new Date().toISOString()
+            };
+            
+            const json = JSON.stringify(allData, null, 2);
+            downloadFile(json, 'erp-backup.json', 'application/json');
+            showAlert('Data exported successfully!');
+        }
+
+        function downloadFile(content, filename, contentType) {
+            const blob = new Blob([content], { type: contentType });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = filename;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+        }
+
+        // Settings Management
+        function loadSettings() {
+            document.getElementById('companyName').value = settings.companyName || '';
+            document.getElementById('companyEmail').value = settings.companyEmail || '';
+            document.getElementById('companyPhone').value = settings.companyPhone || '';
+            document.getElementById('companyAddress').value = settings.companyAddress || '';
+            document.getElementById('defaultCurrency').value = settings.defaultCurrency || 'USD';
+            document.getElementById('taxRate').value = settings.taxRate || 0;
+        }
+
+        function saveSettings() {
+            settings.companyName = document.getElementById('companyName').value;
+            settings.companyEmail = document.getElementById('companyEmail').value;
+            settings.companyPhone = document.getElementById('companyPhone').value;
+            settings.companyAddress = document.getElementById('companyAddress').value;
+            settings.defaultCurrency = document.getElementById('defaultCurrency').value;
+            settings.taxRate = parseFloat(document.getElementById('taxRate').value) || 0;
+            
+            localStorage.setItem('erp_settings', JSON.stringify(settings));
+            showAlert('Settings saved successfully!');
+            updateDashboard();
+        }
+
+        function clearAllData() {
+            if (confirm('Are you sure you want to clear all data? This action cannot be undone!')) {
+                if (confirm('This will delete all customers, suppliers, products, invoices, and payments. Are you absolutely sure?')) {
+                    localStorage.removeItem('erp_customers');
+                    localStorage.removeItem('erp_suppliers');
+                    localStorage.removeItem('erp_products');
+                    localStorage.removeItem('erp_invoices');
+                    localStorage.removeItem('erp_payments');
+                    
+                    customers = [];
+                    suppliers = [];
+                    products = [];
+                    invoices = [];
+                    payments = [];
+                    
+                    refreshAllTables();
+                    updateDashboard();
+                    showAlert('All data cleared!', 'info');
+                }
+            }
+        }
+
+        function loadSampleData() {
+            if (confirm('This will add sample data to your ERP system. Continue?')) {
+                // Sample customers
+                const sampleCustomers = [
+                    {
+                        id: generateId(),
+                        name: 'Acme Corporation',
+                        type: 'business',
+                        email: 'contact@acme.com',
+                        phone: '(555) 123-4567',
+                        address: '123 Business St, City, State 12345',
+                        balance: 0,
+                        notes: 'Large corporate client',
+                        createdAt: new Date().toISOString()
+                    },
+                    {
+                        id: generateId(),
+                        name: 'John Smith',
+                        type: 'individual',
+                        email: 'john.smith@email.com',
+                        phone: '(555) 987-6543',
+                        address: '456 Home Ave, City, State 12345',
+                        balance: 150.00,
+                        notes: 'Regular customer',
+                        createdAt: new Date().toISOString()
+                    }
+                ];
+                
+                // Sample suppliers
+                const sampleSuppliers = [
+                    {
+                        id: generateId(),
+                        company: 'Tech Supplies Inc',
+                        contact: 'Mike Johnson',
+                        email: 'orders@techsupplies.com',
+                        phone: '(555) 111-2222',
+                        address: '789 Supply Dr, City, State 12345',
+                        status: 'active',
+                        notes: 'Primary tech supplier',
+                        createdAt: new Date().toISOString()
+                    }
+                ];
+                
+                // Sample products
+                const sampleProducts = [
+                    {
+                        id: generateId(),
+                        sku: 'LAPTOP001',
+                        name: 'Business Laptop',
+                        category: 'electronics',
+                        price: 899.99,
+                        stock: 15,
+                        minStock: 5,
+                        description: 'High-performance business laptop',
+                        createdAt: new Date().toISOString()
+                    },
+                    {
+                        id: generateId(),
+                        sku: 'PHONE001',
+                        name: 'Smartphone',
+                        category: 'electronics',
+                        price: 599.99,
+                        stock: 25,
+                        minStock: 10,
+                        description: 'Latest model smartphone',
+                        createdAt: new Date().toISOString()
+                    }
+                ];
+                
+                customers.push(...sampleCustomers);
+                suppliers.push(...sampleSuppliers);
+                products.push(...sampleProducts);
+                
+                localStorage.setItem('erp_customers', JSON.stringify(customers));
+                localStorage.setItem('erp_suppliers', JSON.stringify(suppliers));
+                localStorage.setItem('erp_products', JSON.stringify(products));
+                
+                refreshAllTables();
+                updateDashboard();
+                showAlert('Sample data loaded successfully!');
+            }
+        }
+
+        function refreshAllTables() {
+            refreshCustomersTable();
+            refreshSuppliersTable();
+            refreshProductsTable();
+            refreshInvoicesTable();
+            refreshPaymentsTable();
+        }
+
+        // Backup and Restore
+        function generateFullBackup() {
+            exportToJSON();
+        }
+
+        function importData() {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = '.json';
+            input.onchange = function(e) {
+                const file = e.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        try {
+                            const data = JSON.parse(e.target.result);
+                            
+                            if (confirm('This will replace all existing data with the imported data. Continue?')) {
+                                customers = data.customers || [];
+                                suppliers = data.suppliers || [];
+                                products = data.products || [];
+                                invoices = data.invoices || [];
+                                payments = data.payments || [];
+                                settings = { ...settings, ...data.settings };
+                                
+                                localStorage.setItem('erp_customers', JSON.stringify(customers));
+                                localStorage.setItem('erp_suppliers', JSON.stringify(suppliers));
+                                localStorage.setItem('erp_products', JSON.stringify(products));
+                                localStorage.setItem('erp_invoices', JSON.stringify(invoices));
+                                localStorage.setItem('erp_payments', JSON.stringify(payments));
+                                localStorage.setItem('erp_settings', JSON.stringify(settings));
+                                
+                                loadSettings();
+                                refreshAllTables();
+                                updateDashboard();
+                                showAlert('Data imported successfully!');
+                            }
+                        } catch (error) {
+                            showAlert('Error importing data: Invalid file format', 'danger');
+                        }
+                    };
+                    reader.readAsText(file);
+                }
+            };
+            input.click();
+        }
+
+        // Quick Actions
+        function showQuickActions() {
+            showAlert('Quick Actions: Use the navigation tabs above to access different modules quickly!', 'info');
+        }
+
+        function generateBackup() {
+            generateFullBackup();
+        }
+
+        // Export All Data
+        function exportAllData() {
+            const zip = {
+                customers_csv: customers.map(c => [c.id, c.name, c.email || '', c.phone || '', c.type, c.balance]).map(row => row.map(field => `"${field}"`).join(',')).join('\n'),
+                suppliers_csv: suppliers.map(s => [s.id, s.company, s.contact || '', s.email || '', s.phone || '', s.status]).map(row => row.map(field => `"${field}"`).join(',')).join('\n'),
+                products_csv: products.map(p => [p.sku, p.name, p.category, p.price, p.stock, p.minStock]).map(row => row.map(field => `"${field}"`).join(',')).join('\n'),
+                invoices_csv: invoices.map(i => [i.number, i.customerName, i.date, i.dueDate, i.subtotal, i.tax, i.total, i.status]).map(row => row.map(field => `"${field}"`).join(',')).join('\n'),
+                payments_csv: payments.map(p => [p.number, p.invoiceNumber, p.customerName, p.date, p.amount, p.method]).map(row => row.map(field => `"${field}"`).join(',')).join('\n')
+            };
+            
+            showAlert('Individual CSV files would be generated for each data type. Use the Export buttons in the Reports section for specific exports.', 'info');
+        }
+
+        // Generate Reports
+        function generateSalesReport() {
+            const report = {
+                totalSales: payments.reduce((sum, p) => sum + p.amount, 0),
+                totalInvoices: invoices.length,
+                paidInvoices: invoices.filter(i => i.status === 'paid').length,
+                pendingInvoices: invoices.filter(i => i.status !== 'paid').length,
+                averageInvoiceValue: invoices.length > 0 ? invoices.reduce((sum, i) => sum + i.total, 0) / invoices.length : 0
+            };
+            
+            showAlert(`Sales Report: Total Sales: ${formatCurrency(report.totalSales)}, Total Invoices: ${report.totalInvoices}, Average Invoice: ${formatCurrency(report.averageInvoiceValue)}`, 'info');
+        }
+
+        function generateCustomerReport() {
+            const report = {
+                totalCustomers: customers.length,
+                businessCustomers: customers.filter(c => c.type === 'business').length,
+                individualCustomers: customers.filter(c => c.type === 'individual').length,
+                activeCustomers: customers.filter(c => invoices.some(i => i.customerId === c.id)).length
+            };
+            
+            showAlert(`Customer Report: Total: ${report.totalCustomers}, Business: ${report.businessCustomers}, Individual: ${report.individualCustomers}, Active: ${report.activeCustomers}`, 'info');
+        }
+
+        function generateProductReport() {
+            const lowStockProducts = products.filter(p => p.stock <= p.minStock);
+            const outOfStockProducts = products.filter(p => p.stock === 0);
+            const totalValue = products.reduce((sum, p) => sum + (p.price * p.stock), 0);
+            
+            showAlert(`Product Report: Total Products: ${products.length}, Low Stock: ${lowStockProducts.length}, Out of Stock: ${outOfStockProducts.length}, Inventory Value: ${formatCurrency(totalValue)}`, 'info');
+        }
+
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            const modals = document.querySelectorAll('.modal');
+            modals.forEach(modal => {
+                if (event.target === modal) {
+                    modal.classList.remove('show');
+                }
+            });
+        };
+    </script>
+</body>
+</html>
